@@ -36,3 +36,8 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        args: >
+          -Dsonar.organization=ZlmDnl7
+          -Dsonar.projectKey=ZlmDnl7_Alquiler_Autos1
+          -Dsonar.javascript.lcov.reportPaths=backend/coverage/lcov.info
