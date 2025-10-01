@@ -1,4 +1,3 @@
-// Usar CommonJS para que Jest lea la config aunque el proyecto sea type: module
 module.exports = {
   // Configuración para monorepo
   projects: [
