@@ -9,7 +9,7 @@ module.exports = {
         '!backend/coverage/**',
         '!backend/test.js'
       ],
-      coverageDirectory: 'backend/coverage',
+      coverageDirectory: 'coverage',
       coverageReporters: ['text', 'lcov', 'html'],
       testEnvironment: 'node'
     }
