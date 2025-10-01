@@ -6,7 +6,13 @@
   "type": "module",
   "scripts": {
     "dev": "cd backend && nodemon server.js",
-    "start": "node backend/server.js "
+    "start": "node backend/server.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "sonar": "sonar-scanner",
+    "sonar:backend": "cd backend && sonar-scanner",
+    "sonar:frontend": "cd client && sonar-scanner"
   },
   "keywords": [],
   "author": "",
@@ -30,5 +36,13 @@
     "razorpay": "^2.9.3",
     "tailwind-merge": "^2.3.0",
     "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/user-event": "^14.4.3",
+    "sonar-scanner": "^3.9.1"
   }
 }

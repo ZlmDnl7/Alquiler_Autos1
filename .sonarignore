@@ -1,0 +1,75 @@
+# Archivos y carpetas a excluir del análisis de SonarCloud
+
+# Dependencias
+node_modules/
+**/node_modules/
+
+# Builds y distribuciones
+dist/
+build/
+**/dist/
+**/build/
+
+# Coverage
+coverage/
+**/coverage/
+
+# Archivos de configuración
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos de log
+*.log
+logs/
+
+# Archivos temporales
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos minificados
+*.min.js
+*.min.css
+*.bundle.js
+
+# Archivos de testing
+**/*.test.js
+**/*.spec.js
+**/*.test.jsx
+**/*.spec.jsx
+**/*.test.ts
+**/*.spec.ts
+
+# Archivos de documentación
+README.md
+*.md
+docs/
+
+# Archivos de configuración de herramientas
+.eslintrc*
+.prettierrc*
+jest.config.js
+tailwind.config.js
+postcss.config.js
+vite.config.js
+
+# Archivos de Git
+.git/
+.gitignore
+
+# Archivos de Vercel
+vercel.json

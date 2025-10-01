@@ -105,16 +105,14 @@ export const refreshToken = async (req, res, next) => {
       .cookie("access_token", newAccessToken, {
         httpOnly: true,
         maxAge: 900000,
-        sameSite: "None",
-        secure: true,
-        domain: "localhost",
+        sameSite: "lax",
+        secure: false,
       }) // 15 minutes
       .cookie("refresh_token", newRefreshToken, {
         httpOnly: true,
         maxAge: 604800000,
-        sameSite: "None",
-        secure: true,
-        domain: "localhost",
+        sameSite: "lax",
+        secure: false,
       }) // 7 days
       .status(200)
       .json({ accessToken: newAccessToken, refreshToken: newRefreshToken });

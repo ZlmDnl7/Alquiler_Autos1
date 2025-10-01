@@ -68,13 +68,14 @@ function SignIn() {
   const dispatch = useDispatch();
 
   const onSubmit = async (formData, e) => {
-    const BASE_URL = '';
+    const BASE_URL = 'http://localhost:5000';
     e.preventDefault();
     try {
       dispatch(signInStart());
       const res = await fetch(`${BASE_URL}/api/auth/signin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include', // Para recibir cookies
         body: JSON.stringify(formData),
       });
       const data = await res.json();

@@ -22,10 +22,10 @@ export const verifyToken = async (req, res, next) => {
     }
   }
   
-  // Si no hay en headers, buscar en cookies
+  // Si no hay en headers, buscar en cookies (solo las nuestras)
   if (!accessToken && req.cookies) {
     accessToken = req.cookies.access_token;
-    refreshTokenValue = req.cookies.__refresh_fdbfd9LP;
+    refreshTokenValue = req.cookies.refresh_token;
   }
   
   console.log("🔑 Access Token:", accessToken ? "✅ Presente" : "❌ Ausente");
