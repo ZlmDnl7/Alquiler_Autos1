@@ -50,6 +50,11 @@ import { verifyToken } from './utils/verifyUser.js';
 import jwt from 'jsonwebtoken';
 import * as authController from './controllers/authController.js';
 import * as bookingController from './controllers/userControllers/userBookingController.js';
+import * as adminDashboard from './controllers/adminControllers/dashboardController.js';
+import * as masterCollection from './controllers/adminControllers/masterCollectionController.js';
+import * as userVehicles from './controllers/userControllers/userAllVehiclesController.js';
+import * as vendorBookings from './controllers/vendorControllers/vendorBookingsController.js';
+import * as vendorAuth from './controllers/vendorControllers/vendorController.js';
 
 jest.mock('./services/checkAvailableVehicle.js', () => ({
   __esModule: true,
@@ -352,6 +357,105 @@ describe('bookingController', () => {
     await bookingController.updateExistingStatuses(req, res, next);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ result: expect.objectContaining({ modifiedCount: expect.any(Number) }) }));
+  });
+});
+
+// ================= ADMIN DASHBOARD CONTROLLER =================
+describe('admin dashboard controller', () => {
+  test('showVehicles retorna lista', async () => {
+    jest.spyOn(Vehicle, 'find').mockResolvedValue([{ id: 1 }]);
+    const { req, res, next } = createReqResNext();
+    await adminDashboard.showVehicles(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith([{ id: 1 }]);
+  });
+
+  test('deleteVehicle marca isDeleted', async () => {
+    jest.spyOn(Vehicle, 'findByIdAndUpdate').mockResolvedValue({ id: 'v1' });
+    const { req, res, next } = createReqResNext({ params: { id: 'v1' } });
+    await adminDashboard.deleteVehicle(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+});
+
+// ================= MASTER COLLECTION =================
+describe('master collection controller', () => {
+  test('getCarModelData devuelve dummy cuando no hay BD', async () => {
+    const { default: MasterData } = await import('./models/masterDataModel.js');
+    jest.spyOn(MasterData, 'find').mockResolvedValue([]);
+    const { req, res, next } = createReqResNext();
+    await masterCollection.getCarModelData(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalled();
+  });
+});
+
+// ================= USER VEHICLES =================
+describe('user vehicles controller', () => {
+  test('listAllVehicles devuelve lista', async () => {
+    jest.spyOn(Vehicle, 'find').mockResolvedValue([{ _id: 'a' }]);
+    const { req, res, next } = createReqResNext();
+    await userVehicles.listAllVehicles(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  test('showVehicleDetails devuelve detalle', async () => {
+    jest.spyOn(Vehicle, 'findById').mockResolvedValue({ _id: 'a' });
+    const { req, res, next } = createReqResNext({ body: { id: 'a' } });
+    await userVehicles.showVehicleDetails(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+});
+
+// ================= VENDOR BOOKINGS =================
+describe('vendor bookings controller', () => {
+  test('vendorBookings devuelve reservas agregadas', async () => {
+    jest.spyOn(Booking, 'aggregate').mockResolvedValue([{ id: 1 }]);
+    const { req, res, next } = createReqResNext({ body: { vendorVehicles: [] } });
+    await vendorBookings.vendorBookings(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith([{ id: 1 }]);
+  });
+});
+
+// ================= USER VEHICLES extra paths =================
+describe('user vehicles extra scenarios', () => {
+  test('searchCar responde 200 con resultados de aggregate', async () => {
+    jest.spyOn(Vehicle, 'aggregate').mockResolvedValue([{ _id: 'v1' }]);
+    const { req, res, next } = createReqResNext({ body: {
+      pickup_district: 'D', pickup_location: 'L', pickuptime: { $d: new Date('2025-01-01') }, dropofftime: { $d: new Date('2025-01-03') }
+    }});
+    await userVehicles.searchCar(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith([{ _id: 'v1' }]);
+  });
+});
+
+// ================= AUTH refreshToken =================
+describe('auth refreshToken', () => {
+  test('retorna 403 si no hay header', async () => {
+    const { req, res, next } = createReqResNext({ headers: {} });
+    await authController.refreshToken(req, res, next);
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 403 }));
+  });
+});
+
+// ================= Vendor auth =================
+describe('vendor auth', () => {
+  test('vendorSignin valida entrada', async () => {
+    const { req, res, next } = createReqResNext({ body: {} });
+    await vendorAuth.vendorSignin(req, res, next);
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
+  });
+});
+
+// ================= Utils: multer.dataUri =================
+describe('utils multer dataUri', () => {
+  test('convierte buffers a base64 con prefijo de imagen', () => {
+    const { dataUri } = jest.requireActual('./utils/multer.js');
+    const buf = Buffer.from('test');
+    const result = dataUri({ files: [{ buffer: buf, originalname: 'a.jpg' }] });
+    expect(result[0].data.startsWith('data:image/jpeg;base64,')).toBe(true);
   });
 });
 
