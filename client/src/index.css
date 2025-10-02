@@ -238,7 +238,6 @@ body {
 /* Chrome, Edge and Safari */
 *::-webkit-scrollbar {
   width: 10px;
-  width: 10px;
 }
 
 *::-webkit-scrollbar-track {
@@ -526,10 +525,6 @@ body {
 
 @media (max-width: 1000px) {
   .book-content__box .box-form {
-   /* display: flex;
-   flex-direction: row;
-   flex-wrap: wrap;
-   padding:20px; */
    grid-template-columns: 1fr 1fr;
    padding:10px;
    
@@ -539,13 +534,6 @@ body {
   }
 }
 
-/* @media (max-width: 630px) {
-  .book-content__box .box-form {
-    grid-template-columns: 1fr;
-    width: 100%;
-  
-  }
-} */
 @media (max-width: 600px) {
   .book-content__box .box-form {
     display: flex;
@@ -572,7 +560,6 @@ body {
 
 /* sort in user vehicles */
 .css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root {
-  /* border-radius: 40px !important; */
   height: 50px;
 }
 
