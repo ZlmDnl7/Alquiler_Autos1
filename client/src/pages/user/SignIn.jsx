@@ -23,38 +23,10 @@ const schema = z.object({
     .min(8, { message: "Mínimo 8 caracteres" })
     .regex(/[A-Z]/, { message: "Al menos una mayúscula" })
     .regex(/[a-z]/, { message: "Al menos una minúscula" })
-    .regex(/[0-9]/, { message: "Al menos un número" })
+    .regex(/\d/, { message: "Al menos un número" })
     .regex(/[^A-Za-z0-9]/, { message: "Al menos un carácter especial" }),
 });
 
-// export const refreshToken = async (dispatch,getState) => {
-//   const { authSlice } = getState();
-
-//   if (!authSlice.refreshToken) {
-//     // No refresh token available, handle the situation (e.g., log out the user)
-//     dispatch(logout());
-//     return;
-//   }
-
-//   try {
-//     const res = await fetch('/api/auth/refresh', {
-//       method: 'POST',
-//       credentials: 'include', // Include cookies in the request
-//     });
-
-//     const data = await res.json();
-
-//     if (!res.ok) {
-//       dispatch(refreshTokenFailure(data));
-//       return;
-//     }
-
-//     // The server should set the new access token and refresh token in the response cookies
-//     dispatch(refreshTokenSuccess(data));
-//   } catch (err) {
-//     dispatch(signInFailure(err));
-//   }
-// }
 
 function SignIn() {
   const {
@@ -116,7 +88,6 @@ function SignIn() {
   };
 
   return (
-    <>
       <div
         className={`max-w-[340px] pb-10 md:max-w-md min-h-[500px] mx-auto mt-[70px] md:mt-[80px] rounded-lg overflow-hidden  shadow-2xl`}
       >
@@ -188,7 +159,6 @@ function SignIn() {
         </form>
 
       </div>
-    </>
   );
 }
 

@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { IoMdTime } from "react-icons/io";
-import { CiCalendarDate } from "react-icons/ci";
-import { CiLocationOn } from "react-icons/ci";
+import { CiCalendarDate, CiLocationOn } from "react-icons/ci";
 import UserOrderDetailsModal from "../../components/UserOrderDetailsModal";
 import {
   setIsOrderModalOpen,
   setSingleOrderDetails,
 } from "../../redux/user/userSlice";
+
+// Helper function for booking count text
+const getBookingCountText = (count) => {
+  if (count === 0) return "Aún no has hecho ninguna reserva";
+  if (count === 1) return "Tienes 1 reserva activa";
+  return `Tienes ${count} reservas activas`;
+};
 
 export default function Orders() {
   const { _id } = useSelector((state) => state.user.currentUser);
@@ -94,10 +99,7 @@ export default function Orders() {
         </div>
         <h1 className="text-4xl font-bold text-gray-800 mb-4">Mis Reservas</h1>
         <p className="text-lg text-gray-600">
-          {bookings && bookings.length > 0 
-            ? `Tienes ${bookings.length} reserva${bookings.length > 1 ? 's' : ''} activa${bookings.length > 1 ? 's' : ''}`
-            : "Aún no has hecho ninguna reserva"
-          }
+          {getBookingCountText(bookings?.length || 0)}
         </p>
       </div>
 
@@ -138,7 +140,7 @@ export default function Orders() {
           <h3 className="text-2xl font-semibold text-gray-700 mb-4">No hay reservas aún</h3>
           <p className="text-gray-500 mb-8">Cuando hagas tu primera reserva, aparecerá aquí</p>
           <button 
-            onClick={() => window.location.href = '/'}
+            onClick={() => globalThis.location.href = '/'}
             className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
           >
             🚗 Explorar Autos
@@ -155,7 +157,7 @@ export default function Orders() {
           return (
             <div
               className="bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 overflow-hidden"
-              key={idx}
+              key={cur.bookingDetails._id}
             >
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
                 {/* Imagen del vehículo */}

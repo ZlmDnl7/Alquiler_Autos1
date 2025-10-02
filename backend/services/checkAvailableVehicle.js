@@ -22,13 +22,10 @@ export async function availableAtDate(pickupDate, dropOffDate) {
     const uniqueVehicleIds = [...new Set(vehicleIds)];
 
     // Find vehicles with status "tripCompleted" during the specified date range
+    const statusFilter = ["tripCompleted", "canceled", "notBooked"];
     const vehiclesWithCompletedTrips = await Booking.find(
       {
-        $or: [
-          { status: "tripCompleted" },
-          { status: "canceled" },
-          { status: "notBooked" },
-        ],
+        $or: statusFilter.map(status => ({ status })),
         pickupDate: { $lt: dropOffDate },
         dropOffDate: { $gt: pickupDate },
       },

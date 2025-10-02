@@ -15,6 +15,9 @@ import dayjs from "dayjs";
 import toast from "react-hot-toast";
 import { setadminEditVehicleSuccess } from "../../../redux/adminSlices/adminDashboardSlice/StatusSlice";
 
+// TextField component moved outside of parent component
+const CustomTextField = (props) => <TextField {...props} />;
+
 export default function EditProductComponent() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -357,7 +360,7 @@ export default function EditProductComponent() {
                       inputFormat="MM/dd/yyyy" // Customize the date format as per your requirement
                       value={field.value || null} // Ensure value is null if empty string or undefined
                       onChange={(date) => field.onChange(date)}
-                      textField={(props) => <TextField {...props} />}
+                      textField={CustomTextField}
                     />
                   </LocalizationProvider>
                 )}
@@ -375,7 +378,7 @@ export default function EditProductComponent() {
                       inputFormat="MM/dd/yyyy" // Customize the date format as per your requirement
                       value={field.value || null} // Ensure value is null if empty string or undefined
                       onChange={(date) => field.onChange(date)}
-                      textField={(props) => <TextField {...props} />}
+                      textField={CustomTextField}
                     />
                   </LocalizationProvider>
                 )}
@@ -393,7 +396,7 @@ export default function EditProductComponent() {
                       inputFormat="MM/dd/yyyy" // Customize the date format as per your requirement
                       value={field.value || null} // Ensure value is null if empty string or undefined
                       onChange={(date) => field.onChange(date)}
-                      textField={(props) => <TextField {...props} />}
+                      textField={CustomTextField}
                     />
                   </LocalizationProvider>
                 )}

@@ -6,9 +6,8 @@ import { Link, Route, Routes } from "react-router-dom";
 import Orders from "./Orders";
 import UserProfileContent from "../../components/UserProfileContent";
 import Favorites from "./Favorites";
-import { IoArrowBackCircleSharp } from "react-icons/io5";
+import { IoArrowBackCircleSharp, IoMenu } from "react-icons/io5";
 import { showSidebarOrNot } from "../../redux/adminSlices/adminDashboardSlice/DashboardSlice";
-import { IoMenu } from "react-icons/io5";
 
 function Profile() {
   const { isError } = useSelector((state) => state.user);

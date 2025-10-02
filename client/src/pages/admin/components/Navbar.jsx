@@ -15,6 +15,33 @@ import profiile from "../../../Assets/profile dummy image.png";
 import { useEffect } from "react";
 import PropTypes from "prop-types";
 
+// NavButton component moved outside of parent component
+const NavButton = ({ title, customFunc, icon, color, dotColor }) => (
+  <TooltipComponent content={title} position={"BottomCenter"}>
+    <button
+      type="button"
+      onClick={customFunc}
+      style={{ color, dotColor }}
+      className="relative text-xl p-3  hover:bg-gray-100  rounded-full mb-2"
+      aria-label={title}
+    >
+      <span
+        style={{ background: dotColor }}
+        className="absolute inline-flex rounded-full right-[8px] top-2  h-2 w-2"
+      ></span>
+      {icon}
+    </button>
+  </TooltipComponent>
+);
+
+NavButton.propTypes = {
+  title: PropTypes.string.isRequired,
+  customFunc: PropTypes.func.isRequired,
+  icon: PropTypes.node, // assuming icon can be any renderable component
+  color: PropTypes.string,
+  dotColor: PropTypes.string,
+};
+
 const Navbar = () => {
   const dispatch = useDispatch();
   const {  chat, notification, userProfile, screenSize } = useSelector(
@@ -39,32 +66,6 @@ const Navbar = () => {
       dispatch(showSidebarOrNot(true));
     }
   }, [screenSize]);
-
-  const NavButton = ({ title, customFunc, icon, color, dotColor }) => (
-    <TooltipComponent content={title} position={"BottomCenter"}>
-      <button
-        type="button"
-        onClick={customFunc}
-        style={{ color, dotColor }}
-        className="relative text-xl p-3  hover:bg-gray-100  rounded-full mb-2"
-        aria-label={title}
-      >
-        <span
-          style={{ background: dotColor }}
-          className="absolute inline-flex rounded-full right-[8px] top-2  h-2 w-2"
-        ></span>
-        {icon}
-      </button>
-    </TooltipComponent>
-  );
-
-  NavButton.propTypes = {
-    title: PropTypes.string.isRequired,
-    customFunc: PropTypes.func.isRequired,
-    icon: PropTypes.node, // assuming icon can be any renderable component
-    color: PropTypes.string,
-    dotColor: PropTypes.string,
-  };
 
   return (
     <div className="flex justify-between p-2 md:mx-6 relative">
@@ -96,12 +97,11 @@ const Navbar = () => {
           icon={<RiNotification3Line />}
         />
                   <TooltipComponent content="perfil" position="BottomCenter">
-          <div
+          <button
+            type="button"
             className="flex items-center gap-2 cursor-pointer p-1 hover:bg-gray-100 rounded-lg mt-2"
             onClick={() => dispatch(openPages("userProfile"))}
             onKeyDown={(e) => e.key === 'Enter' && dispatch(openPages("userProfile"))}
-            role="button"
-            tabIndex={0}
             aria-label="Abrir perfil de usuario"
           >
             <img src={profiile} alt="" className="w-4 h-4 rounded-full " />
@@ -112,7 +112,7 @@ const Navbar = () => {
               </span>
             </p>
             <MdKeyboardArrowDown />
-          </div>
+          </button>
         </TooltipComponent>
 
         
