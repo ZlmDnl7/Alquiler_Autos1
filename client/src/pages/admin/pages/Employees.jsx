@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button } from "@mui/material";
 import { toast } from "sonner";
 
 const Employees = () => {
@@ -31,6 +30,7 @@ const Employees = () => {
         toast.error("Error al cargar empleados");
       }
     } catch (error) {
+      console.error("Error fetching employees:", error);
       toast.error("Error de conexión");
     } finally {
       setLoading(false);
@@ -77,7 +77,11 @@ const Employees = () => {
             </span>
           );
         }
-        return "Cliente";
+        return (
+          <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
+            Cliente
+          </span>
+        );
       },
     },
     {

@@ -1,7 +1,7 @@
 
 
 import { useState, useEffect } from "react";
-import { LineChart, Button } from "../components";
+import { Button } from "../components";
 import { toast } from "sonner";
 
 const AdminHomeMain = () => {
@@ -33,6 +33,7 @@ const AdminHomeMain = () => {
         toast.error("Error al cargar estadísticas");
       }
     } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
       toast.error("Error de conexión");
     } finally {
       setLoading(false);
@@ -131,7 +132,7 @@ const AdminHomeMain = () => {
             {stats.recentUsers.length > 0 ? (
               <div className="space-y-3">
                 {stats.recentUsers.map((user, index) => (
-                  <div key={index} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                  <div key={`user-${user.username}-${index}`} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
                     <img
                       src={user.profilePicture || "https://via.placeholder.com/40"}
                       alt="Profile"

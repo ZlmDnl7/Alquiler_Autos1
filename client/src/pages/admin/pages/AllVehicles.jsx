@@ -21,7 +21,7 @@ function AllVehicles() {
 
   const { isAddVehicleClicked } = useSelector((state) => state.addVehicle);
 
-  const [allVehicles, setVehicles] = useState([]);
+  const [allVehicles, setAllVehicles] = useState([]);
   const { adminEditVehicleSuccess, adminAddVehicleSuccess, adminCrudError } =
     useSelector((state) => state.statusSlice);
 
@@ -34,7 +34,7 @@ function AllVehicles() {
         });
         if (res.ok) {
           const data = await res.json();
-          setVehicles(data);
+          setAllVehicles(data);
           dispatch(showVehicles(data));
         }
       } catch (error) {
@@ -47,7 +47,7 @@ function AllVehicles() {
   //delete a vehicle
   const handleDelete = async (vehicle_id) => {
     try {
-      setVehicles(allVehicles.filter((cur) => cur._id !== vehicle_id));
+      setAllVehicles(allVehicles.filter((cur) => cur._id !== vehicle_id));
       const res = await fetch(`/api/admin/deleteVehicle/${vehicle_id}`, {
         method: "DELETE",
       });

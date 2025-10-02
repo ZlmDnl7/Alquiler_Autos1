@@ -114,7 +114,7 @@ const BookingsTable = () => {
           }}
         >
           {params.value.map((cur, idx) => (
-            <option key={idx} value={cur}>
+            <option key={`${cur}-${idx}`} value={cur}>
               {cur}
             </option>
           ))}
@@ -148,7 +148,6 @@ const BookingsTable = () => {
     }));
 
   return (
-    <>
       <div className="max-w-[1000px]  d-flex   justify-end text-start items-end p-10 border border-slate-1 rounded-lg drop-shadow-md ">
         <Box sx={{ height: "100%", width: "100%" }}>
           <DataGrid
@@ -175,7 +174,6 @@ const BookingsTable = () => {
           />
         </Box>
       </div>
-    </>
   );
 };
 

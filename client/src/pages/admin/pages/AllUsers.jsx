@@ -26,6 +26,7 @@ const AllUsers = () => {
         toast.error("Error al cargar usuarios");
       }
     } catch (error) {
+      console.error("Error fetching users:", error);
       toast.error("Error de conexión");
     } finally {
       setLoading(false);

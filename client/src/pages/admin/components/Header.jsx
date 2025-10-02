@@ -25,8 +25,13 @@ const Header = ({category,title}) => {
         {title}
       </p>
       </div>
-      <button className='bg-blue-600 rounded-lg '>
-        <div className='text-white px-5 py-2 font-bold ' onClick={handleAddVehicle}>Agregar+</div>
+      <button 
+        className='bg-blue-600 rounded-lg text-white px-5 py-2 font-bold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2' 
+        onClick={handleAddVehicle}
+        type="button"
+        aria-label="Agregar nuevo vehículo"
+      >
+        Agregar+
       </button>
       
         

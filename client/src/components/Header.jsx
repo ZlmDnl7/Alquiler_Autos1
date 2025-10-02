@@ -84,7 +84,6 @@ function Header() {
             <div>{nav ? <MdMenuOpen /> : <RxHamburgerMenu />}</div>
           </button>
           <Drawer
-            destroyOnClose
             onClose={() => setNav(false)}
             open={nav}
           >

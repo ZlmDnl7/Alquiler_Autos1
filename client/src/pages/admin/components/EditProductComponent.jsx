@@ -30,11 +30,12 @@ export default function EditProductComponent() {
   const vehicle_id = queryParams.get("vehicle_id");
 
   let updateingItem = "";
-  userAllVehicles.forEach((cur) => {
+  for (const cur of userAllVehicles) {
     if (cur._id === vehicle_id) {
       updateingItem = cur;
+      break;
     }
-  });
+  }
 
   const insuranceDefaultDate = updateingItem.insurance_end
     ? dayjs(new Date(updateingItem.insurance_end))
@@ -134,7 +135,7 @@ export default function EditProductComponent() {
                     error={Boolean(field.value == "")}
                   >
                     {companyData.map((cur, idx) => (
-                      <MenuItem value={cur} key={idx}>
+                      <MenuItem value={cur} key={`company-${cur}-${idx}`}>
                         {cur}
                       </MenuItem>
                     ))}
@@ -164,7 +165,7 @@ export default function EditProductComponent() {
                     error={Boolean(field.value == "")}
                   >
                     {modelData.map((cur, idx) => (
-                      <MenuItem value={cur} key={idx}>
+                      <MenuItem value={cur} key={`model-${cur}-${idx}`}>
                         {cur}
                       </MenuItem>
                     ))}
@@ -297,7 +298,7 @@ export default function EditProductComponent() {
                     error={Boolean(field.value == "")}
                   >
                     {locationData.map((cur, idx) => (
-                      <MenuItem value={cur} key={idx}>
+                      <MenuItem value={cur} key={`location-${cur}-${idx}`}>
                         {cur}
                       </MenuItem>
                     ))}
@@ -319,7 +320,7 @@ export default function EditProductComponent() {
                     error={Boolean(field.value == "")}
                   >
                     {districtData.map((cur, idx) => (
-                      <MenuItem value={cur} key={idx}>
+                      <MenuItem value={cur} key={`district-${cur}-${idx}`}>
                         {cur}
                       </MenuItem>
                     ))}

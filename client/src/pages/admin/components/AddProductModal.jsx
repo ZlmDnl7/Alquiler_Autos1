@@ -93,15 +93,15 @@ const AddProductModal = () => {
    
     try {
       const img = [];
-      for (let i = 0; i < addData.image.length; i++) {
-        img.push(addData.image[i]);
+      for (const file of addData.image) {
+        img.push(file);
       }
       const formData = new FormData();
       formData.append("registeration_number", addData.registeration_number);
       formData.append("company", addData.company);
-      img.forEach((file) => {
+      for (const file of img) {
         formData.append(`image`, file); // Append each file with a unique key
-      });
+      }
       formData.append("name", addData.name);
       formData.append("model", addData.model);
       formData.append("title", addData.title);

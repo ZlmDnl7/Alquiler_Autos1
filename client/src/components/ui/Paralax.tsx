@@ -82,7 +82,6 @@ export const HeroParallax = () => {
   );
 
   return (
-    <>
       <div
         ref={ref}
         className="h-full py-40 overflow-hidden mb-[200px]  antialiased relative flex flex-col self-auto [perspective:1000px]  [transform-style:preserve-3d] "
@@ -144,8 +143,6 @@ export const HeroParallax = () => {
           </motion.div>
         </motion.div>
       </div>
-     
-    </>
   );
 };
 

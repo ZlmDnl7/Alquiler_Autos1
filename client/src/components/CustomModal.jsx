@@ -87,6 +87,10 @@ const Modal = ({
           } `}
           onClick={checkOutsideAndCloseModal}
           onMouseDown={handleMouseDown}
+          onKeyDown={(e) => e.key === 'Escape' && onClose()}
+          role="dialog"
+          aria-modal="true"
+          tabIndex={-1}
         >
           <div
             ref={modalRef}

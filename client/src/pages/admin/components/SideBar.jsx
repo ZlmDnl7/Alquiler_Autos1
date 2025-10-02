@@ -58,7 +58,7 @@ const SideBar = () => {
           </div>
           <div className="mt-10">
             {links.map((cur, idx) => (
-              <div key={idx}>
+              <div key={`section-${cur.title}-${idx}`}>
                 <p className="text-gray-700 m-3 mt-4 text-uppercase">{cur.title}</p>
                 {cur.links.map((link) => (
                   <NavLink

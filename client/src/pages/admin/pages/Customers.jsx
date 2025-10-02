@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button } from "@mui/material";
 import { toast } from "sonner";
 
 const Customers = () => {
@@ -31,6 +30,7 @@ const Customers = () => {
         toast.error("Error al cargar clientes");
       }
     } catch (error) {
+      console.error("Error fetching customers:", error);
       toast.error("Error de conexión");
     } finally {
       setLoading(false);

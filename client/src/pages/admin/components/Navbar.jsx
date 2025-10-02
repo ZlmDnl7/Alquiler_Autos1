@@ -47,6 +47,7 @@ const Navbar = () => {
         onClick={customFunc}
         style={{ color, dotColor }}
         className="relative text-xl p-3  hover:bg-gray-100  rounded-full mb-2"
+        aria-label={title}
       >
         <span
           style={{ background: dotColor }}
@@ -98,6 +99,10 @@ const Navbar = () => {
           <div
             className="flex items-center gap-2 cursor-pointer p-1 hover:bg-gray-100 rounded-lg mt-2"
             onClick={() => dispatch(openPages("userProfile"))}
+            onKeyDown={(e) => e.key === 'Enter' && dispatch(openPages("userProfile"))}
+            role="button"
+            tabIndex={0}
+            aria-label="Abrir perfil de usuario"
           >
             <img src={profiile} alt="" className="w-4 h-4 rounded-full " />
             <p>
