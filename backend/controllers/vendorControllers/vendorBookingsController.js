@@ -1,4 +1,6 @@
 import Booking from '../../models/BookingModel.js'
+import mongoose from 'mongoose'
+import { errorHandler } from '../../utils/error.js'
 
 export const vendorBookings = async (req, res, next) => {
     try {
@@ -23,11 +25,18 @@ export const vendorBookings = async (req, res, next) => {
 
         // Agregar filtro por vehículos del vendor si se proporciona
         if (vendorVehicles && Array.isArray(vendorVehicles) && vendorVehicles.length > 0) {
-          pipeline.push({
-            $match: {
-              "vehicleDetails._id": { $in: vendorVehicles }
-            }
-          });
+          // Validar y sanitizar los IDs de vehículos
+          const validVehicleIds = vendorVehicles
+            .filter(id => mongoose.Types.ObjectId.isValid(id))
+            .map(id => new mongoose.Types.ObjectId(id));
+          
+          if (validVehicleIds.length > 0) {
+            pipeline.push({
+              $match: {
+                "vehicleDetails._id": { $in: validVehicleIds }
+              }
+            });
+          }
         }
 
         const bookings = await Booking.aggregate(pipeline);
