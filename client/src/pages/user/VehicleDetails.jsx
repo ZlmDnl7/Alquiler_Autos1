@@ -1,15 +1,10 @@
 import { GrSecure } from "react-icons/gr";
 import { useDispatch, useSelector } from "react-redux";
 
-import { FaStar } from "react-icons/fa";
+import { FaStar, FaCarSide, FaCarAlt, FaBuilding } from "react-icons/fa";
 import { CiCalendarDate } from "react-icons/ci";
 import { GiGearStickPattern } from "react-icons/gi";
-import { FaCarSide } from "react-icons/fa";
-import { MdAirlineSeatReclineExtra } from "react-icons/md";
 import { BsFillFuelPumpFill } from "react-icons/bs";
-
-import { FaCarAlt } from "react-icons/fa";
-import { FaBuilding } from "react-icons/fa";
 import styles from "../..";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 import { TooltipComponent } from "@syncfusion/ej2-react-popups";
@@ -18,7 +13,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaIndianRupeeSign } from "react-icons/fa6";
 import { useEffect } from "react";
 import { showVehicles } from "../../redux/user/listAllVehicleSlice";
-// import { signOut } from "../../redux/user/userSlice";
+
+// Helper functions for better readability
+const getTransmissionType = (transmition) => {
+  if (transmition === 'manual') return 'Manual';
+  if (transmition === 'automatic') return 'Automática';
+  return transmition || "No especificado";
+};
+
+const getFuelType = (fuelType) => {
+  if (fuelType === 'petrol') return 'Gasolina';
+  if (fuelType === 'diesel') return 'Diésel';
+  if (fuelType === 'electirc') return 'Eléctrico';
+  if (fuelType === 'hybrid') return 'Híbrido';
+  return fuelType || "No especificado";
+};
 
 const VehicleDetails = () => {
   const { singleVehicleDetail } = useSelector(
@@ -49,7 +58,7 @@ const VehicleDetails = () => {
     fetchData();
   }, []);
 
-  const handleBook = async (vehicleId, navigate) => {
+  const handleBook = async (vehicleId, navigate, dispatch) => {
     try {
       // const booked = await fetch('/api/auth/refreshToken',{
       //   method: 'POST',
@@ -63,15 +72,6 @@ const VehicleDetails = () => {
       //   })
       // })
 
-      // if(!booked.ok){
-      //   dispatch(signOut())
-      //   navigate('/signup')
-      //   return
-      // }
-      // const data = await booked.json();
-      // if(data){
-      //   navigate('/checkoutPage')
-      // }
 
       navigate("/checkoutPage");
     } catch (error) {
@@ -90,10 +90,10 @@ const VehicleDetails = () => {
                   <div className="max-w-xl overflow-hidden rounded-lg relative">
                     <img
                       className="h-full w-full max-w-full object-cover main-vehicle-image"
-                      src={singleVehicleDetail && singleVehicleDetail.image[0]}
+                      src={singleVehicleDetail?.image?.[0]}
                       alt={singleVehicleDetail.model}
                     />
-                    {singleVehicleDetail && singleVehicleDetail.image && singleVehicleDetail.image.length > 1 && (
+                    {singleVehicleDetail?.image?.length > 1 && (
                       <>
                         <div className="absolute top-4 right-4 bg-black bg-opacity-70 text-white text-sm px-3 py-1 rounded-full">
                           {singleVehicleDetail.image.length} fotos
@@ -101,7 +101,7 @@ const VehicleDetails = () => {
                         <button
                           onClick={() => {
                             const mainImage = document.querySelector('.main-vehicle-image');
-                            const currentIndex = singleVehicleDetail.image.findIndex(img => img === mainImage.src);
+                            const currentIndex = singleVehicleDetail.image.indexOf(mainImage.src);
                             const prevIndex = currentIndex > 0 ? currentIndex - 1 : singleVehicleDetail.image.length - 1;
                             mainImage.src = singleVehicleDetail.image[prevIndex];
                           }}
@@ -113,7 +113,7 @@ const VehicleDetails = () => {
                         <button
                           onClick={() => {
                             const mainImage = document.querySelector('.main-vehicle-image');
-                            const currentIndex = singleVehicleDetail.image.findIndex(img => img === mainImage.src);
+                            const currentIndex = singleVehicleDetail.image.indexOf(mainImage.src);
                             const nextIndex = currentIndex < singleVehicleDetail.image.length - 1 ? currentIndex + 1 : 0;
                             mainImage.src = singleVehicleDetail.image[nextIndex];
                           }}
@@ -139,12 +139,12 @@ const VehicleDetails = () => {
                 <div className="mt-2 w-full lg:order-1 lg:w-32 lg:flex-shrink-0">
                   <div className="flex flex-row items-start lg:flex-col">
                     {singleVehicleDetail &&
-                      singleVehicleDetail.succes != false &&
+                      singleVehicleDetail.succes !== false &&
                       singleVehicleDetail.image.map((cur, idx) => (
                         <button
                           type="button"
                           className="flex-0 aspect-square mb-3 h-20 overflow-hidden rounded-lg border-2 border-gray-900 text-center hover:border-blue-500 transition-colors cursor-pointer"
-                          key={idx}
+                          key={cur}
                           onClick={() => {
                             // Cambiar la imagen principal
                             const mainImage = document.querySelector('.main-vehicle-image');
@@ -202,7 +202,7 @@ const VehicleDetails = () => {
                   <span>
                     <GiGearStickPattern />
                   </span>
-                  Transmisión: {singleVehicleDetail.transmition === 'manual' ? 'Manual' : singleVehicleDetail.transmition === 'automatic' ? 'Automática' : singleVehicleDetail.transmition || "No especificado"}
+                  Transmisión: {getTransmissionType(singleVehicleDetail.transmition)}
                 </div>
                 <div
                   className={`${styles.iconFlex} capitalize border border-slate-200 p-2 rounded-md`}
@@ -229,7 +229,7 @@ const VehicleDetails = () => {
                   <span>
                     <BsFillFuelPumpFill />
                   </span>
-                  Tipo de Combustible: {singleVehicleDetail.fuel_type === 'petrol' ? 'Gasolina' : singleVehicleDetail.fuel_type === 'diesel' ? 'Diésel' : singleVehicleDetail.fuel_type === 'electirc' ? 'Eléctrico' : singleVehicleDetail.fuel_type === 'hybrid' ? 'Híbrido' : singleVehicleDetail.fuel_type}
+                  Tipo de Combustible: {getFuelType(singleVehicleDetail.fuel_type)}
                 </div>
                 <div
                   className={`${styles.iconFlex} capitalize border border-slate-200 p-2 rounded-md`}
@@ -309,14 +309,13 @@ const VehicleDetails = () => {
             <div className="lg:col-span-3">
               <div className="border-b border-gray-300">
                 <nav className="flex gap-4">
-                  <a
-                    href="#"
-                    title=""
+                  <button
+                    type="button"
                     className="border-b-2 border-gray-900 py-4 text-sm font-medium text-gray-900 hover:border-gray-400 hover:text-gray-800"
                   >
                     {" "}
                     Descripción{" "}
-                  </a>
+                  </button>
                 </nav>
               </div>
 
