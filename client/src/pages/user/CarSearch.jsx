@@ -3,21 +3,20 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { Controller, useForm } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 
 
 //reducers
-import { setAvailableCars, setLocationsOfDistrict, setSelectedDistrict } from "../../redux/user/selectRideSlice";
+import { setAvailableCars } from "../../redux/user/selectRideSlice";
 
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { setSelectedData } from "../../redux/user/BookingDataSlice";
 import dayjs from "dayjs";
-import useFetchLocationsLov from "../../hooks/useFetchLocationsLov";
 
 const schema = z.object({
   dropoff_location: z.string().min(1, { message: "Ubicación de devolución requerida" }),
@@ -105,62 +104,66 @@ const CarSearch = () => {
   //   }
   // }, [selectedDistrict]);
 
+  // Helper function to clear form elements
+  const clearFormElements = () => {
+    const elements = ["pickup_district", "pickup_location", "dropoff_location"];
+    elements.forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.innerHTML = "";
+      }
+    });
+  };
+
+  // Helper function to reset form
+  const resetForm = () => {
+    reset({
+      pickuptime: null,
+      dropofftime: null,
+    });
+    clearFormElements();
+  };
+
+  // Helper function to make API request
+  const searchVehicles = async (searchData) => {
+    const res = await fetch("api/user/showSingleofSameModel", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(searchData),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      setError(errorData.message || "Error al buscar vehículos");
+      return false;
+    }
+
+    const result = await res.json();
+    dispatch(setAvailableCars(result));
+    navigate("/availableVehicles");
+    return true;
+  };
+
   //search cars
   const hanldeData = async (data) => {
     try {
-      if (data) {
-        //preserving the selected data for later use
-        dispatch(setSelectedData(data));
+      if (!data) return;
 
-        const pickupDate = data.pickuptime.$d;
-        const dropOffDate = data.dropofftime.$d;
-        const datas = {
-          pickupDate,
-          dropOffDate,
-          pickUpDistrict: data.pickup_district,
-          pickUpLocation: data.pickup_location,
-        };
+      //preserving the selected data for later use
+      dispatch(setSelectedData(data));
 
-        const res = await fetch("api/user/showSingleofSameModel", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(datas),
-        });
+      const searchData = {
+        pickupDate: data.pickuptime.$d,
+        dropOffDate: data.dropofftime.$d,
+        pickUpDistrict: data.pickup_district,
+        pickUpLocation: data.pickup_location,
+      };
 
-        if (!res.ok) {
-          const errorData = await res.json();
-          setError(errorData.message || "Error al buscar vehículos");
-          return;
-        }
-
-        if (res.ok) {
-          const result = await res.json();
-          dispatch(setAvailableCars(result));
-          navigate("/availableVehicles");
-        }
-
-        if (res.ok) {
-          reset({
-            pickuptime: null, // Reset pickuptime to null
-            dropofftime: null, // Reset dropofftime to null
-          });
-
-          const pickupDistrictElement = document.getElementById("pickup_district");
-          const pickupLocationElement = document.getElementById("pickup_location");
-          const dropoffLocationElement = document.getElementById("dropoff_location");
-
-          if (pickupDistrictElement) {
-            pickupDistrictElement.innerHTML = "";
-          }
-          if (pickupLocationElement) {
-            pickupLocationElement.innerHTML = "";
-          }
-          if (dropoffLocationElement) {
-            dropoffLocationElement.innerHTML = "";
-          }
-        }
+      const success = await searchVehicles(searchData);
+      if (success) {
+        resetForm();
       }
     } catch (error) {
       console.log("Error  : ", error);
@@ -171,7 +174,6 @@ const CarSearch = () => {
   const oneDayGap = pickup ? dayjs(pickup).add(1, "day") : dayjs().add(1, "day");
 
   return (
-    <>
       <section id="booking-section" className="book-section relative z-10 mt-[50px]  mx-auto max-w-[1500px] bg-white">
         {/* overlay */}
 
@@ -319,7 +321,6 @@ const CarSearch = () => {
           </div>
         </div>
       </section>
-    </>
   );
 };
 

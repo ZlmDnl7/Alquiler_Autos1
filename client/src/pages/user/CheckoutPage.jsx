@@ -1,7 +1,4 @@
 import { useDispatch, useSelector } from "react-redux";
-import { MdCurrencyRupee } from "react-icons/md";
-import { CiCalendarDate } from "react-icons/ci";
-import { IoMdTime } from "react-icons/io";
 import { MdVerifiedUser } from "react-icons/md";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -11,11 +8,9 @@ import { FaIndianRupeeSign } from "react-icons/fa6";
 import TextField from "@mui/material/TextField";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { displayRazorpay } from "./Razorpay";
 import { setPageLoading } from "../../redux/user/userSlice";
 import { setisPaymentDone } from "../../redux/user/LatestBookingsSlice";
 import {toast, Toaster} from "sonner";
-// import { toast, Toaster } from "sonner";
 
 export async function sendBookingDetailsEmail(
   toEmail,
@@ -53,6 +48,27 @@ const schema = z.object({
     }),
 });
 
+// Helper function to calculate days and price
+const calculateDaysAndPrice = (pickupDateTime, dropoffDateTime, price) => {
+  if (pickupDateTime && dropoffDateTime) {
+    const start = new Date(pickupDateTime);
+    const end = new Date(dropoffDateTime);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return { days: diffDays, totalPrice: price * diffDays + 25 };
+  }
+  return { days: 0, totalPrice: 0 };
+};
+
+// Helper function to validate form data
+const validateFormData = (data) => {
+  const { localPickupDateTime, localDropoffDateTime, localPickupDistrict, 
+          localPickupLocation, localDropoffDistrict, localDropoffLocation } = data;
+  
+  return !localPickupDateTime || !localDropoffDateTime || !localPickupDistrict || 
+         !localPickupLocation || !localDropoffDistrict || !localDropoffLocation;
+};
+
 const CheckoutPage = () => {
   const {
     handleSubmit,
@@ -67,7 +83,6 @@ const CheckoutPage = () => {
     pickup_district,
     pickup_location,
     dropoff_location,
-    dropofftime,
     pickupDate,
     dropoffDate,
   } = useSelector((state) => state.bookingDataSlice);
@@ -84,7 +99,7 @@ const CheckoutPage = () => {
   const { isPageLoading } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
-  const { email, phoneNumber, adress } = currentUser;
+  const { email, phoneNumber } = currentUser;
   const { price } = singleVehicleDetail;
 
   const user_id = currentUser._id;
@@ -99,8 +114,6 @@ const CheckoutPage = () => {
 
   const diffMilliseconds = end - start;
   const Days = Math.round(diffMilliseconds / (1000 * 3600 * 24));
-
-
 
   // Estado local para los campos del formulario de reserva
   const [localPickupDistrict, setLocalPickupDistrict] = useState(pickup_district || "");
@@ -118,92 +131,81 @@ const CheckoutPage = () => {
     console.log(`Actualizando ${field}:`, value);
   };
 
-              // Función para calcular días y precio total
-            const calculateDaysAndPrice = () => {
-              if (localPickupDateTime && localDropoffDateTime) {
-                const start = new Date(localPickupDateTime);
-                const end = new Date(localDropoffDateTime);
-                const diffTime = Math.abs(end - start);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                return { days: diffDays, totalPrice: price * diffDays + 25 };
-              }
-              return { days: 0, totalPrice: 0 };
-            };
+  const { days: calculatedDays, totalPrice: calculatedTotalPrice } = calculateDaysAndPrice(
+    localPickupDateTime, 
+    localDropoffDateTime, 
+    price
+  );
 
-  const { days: calculatedDays, totalPrice: calculatedTotalPrice } = calculateDaysAndPrice();
+  //calculateing total price
+  let totalPrice = price * Days + 25;
+  // Helper function to create order data
+  const createOrderData = () => ({
+    user_id,
+    vehicle_id,
+    totalPrice: calculatedTotalPrice > 0 ? calculatedTotalPrice : totalPrice,
+    pickupDate: localPickupDateTime,
+    dropoffDate: localDropoffDateTime,
+    pickup_district: localPickupDistrict,
+    pickup_location: localPickupLocation,
+    dropoff_district: localDropoffDistrict,
+    dropoff_location: localDropoffLocation,
+  });
 
+  // Helper function to save booking
+  const saveBooking = async (orderData) => {
+    const response = await fetch("/api/user/bookCar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(orderData),
+    });
 
+    const result = await response.json();
+    return { response, result };
+  };
 
-              //calculateing total price
-            let totalPrice = price * Days ? Days + 25 : "";
   //handle place order data
   const handlePlaceOrder = async () => {
+    const formData = {
+      localPickupDateTime,
+      localDropoffDateTime,
+      localPickupDistrict,
+      localPickupLocation,
+      localDropoffDistrict,
+      localDropoffLocation
+    };
+
     // Validar que todos los campos estén llenos
-    if (!localPickupDateTime || !localDropoffDateTime || !localPickupDistrict || !localPickupLocation || !localDropoffDistrict || !localDropoffLocation) {
+    if (validateFormData(formData)) {
       toast.error("Por favor completa todos los campos de ubicación y fechas");
       return;
     }
 
-    const orderData = {
-      user_id,
-      vehicle_id,
-      totalPrice: calculatedTotalPrice > 0 ? calculatedTotalPrice : totalPrice,
-      pickupDate: localPickupDateTime,
-      dropoffDate: localDropoffDateTime,
-      pickup_district: localPickupDistrict,
-      pickup_location: localPickupLocation,
-      dropoff_district: localDropoffDistrict,
-      dropoff_location: localDropoffLocation,
-    };
-
+    const orderData = createOrderData();
     console.log("Datos de la orden:", orderData);
 
     try {
       dispatch(setPageLoading(true));
       
-      // PRUEBA DIRECTA: Guardar en base de datos sin Razorpay
       console.log("Intentando guardar reserva directamente...");
       
-      const response = await fetch("/api/user/bookCar", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(orderData),
-      });
-
-      const result = await response.json();
+      const { response, result } = await saveBooking(orderData);
       console.log("Respuesta del backend:", result);
 
       if (response.ok && result) {
         toast.success("¡Reserva creada exitosamente!");
-        dispatch(setPageLoading(false));
         setReservationSuccess(true);
         setReservationData(result.booked);
-        // NO redirigir automáticamente - mostrar confirmación
-        // navigate("/");
       } else {
         toast.error(result?.message || "Error al crear la reserva");
-        dispatch(setPageLoading(false));
       }
-
-      // Código original comentado para pruebas
-      /*
-      const displayRazorpayResponse = await displayRazorpay(
-        orderData,
-        navigate,
-        dispatch
-      );
-
-      if (!displayRazorpayResponse || !displayRazorpayResponse?.ok) {
-        dispatch(setPageLoading(false));
-        toast.error(displayRazorpayResponse?.message || "Error al procesar el pago");
-      }
-      */
     } catch (error) {
       console.log("Error en handlePlaceOrder:", error);
-      dispatch(setPageLoading(false));
       toast.error("Error al procesar la reserva: " + error.message);
+    } finally {
+      dispatch(setPageLoading(false));
     }
   };
 

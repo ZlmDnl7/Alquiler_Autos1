@@ -138,7 +138,10 @@ const VenderVehicleRequests = () => {
       renderCell: (params) => (
         <Button
           className="bg-green-500"
-          onClick={() => {handleApproveRequest(params.row.id), dispatch(setUpdateRequestTable(params.row.id))}}
+          onClick={() => {
+            handleApproveRequest(params.row.id);
+            dispatch(setUpdateRequestTable(params.row.id));
+          }}
         >
           <GrStatusGood style={{ fontSize: 24 , color: 'green' }}/>
         </Button>
@@ -151,7 +154,10 @@ const VenderVehicleRequests = () => {
       renderCell: (params) => (
         <Button
           className="bg-red-200"
-          onClick={() => {handleReject(params.row.id), dispatch(setUpdateRequestTable(params.row.id))}}
+          onClick={() => {
+            handleReject(params.row.id);
+            dispatch(setUpdateRequestTable(params.row.id));
+          }}
         >
           <IoIosCloseCircle style={{ fontSize: 28 , color:'red' }}/>
         </Button>
@@ -159,18 +165,15 @@ const VenderVehicleRequests = () => {
     },
   ];
 
-  const rows =
-  adminVenodrRequest && 
-    adminVenodrRequest
-      .filter((vehicle) => vehicle.isDeleted === "false")
-      .map((vehicle) => ({
-        id: vehicle._id,
-        image: vehicle.image[0],
-        registeration_number: vehicle.registeration_number,
-        company: vehicle.company,
-        name: vehicle.name,
-        status: !vehicle.isAdminApproved,
-      }))
+  const rows = adminVenodrRequest?.filter((vehicle) => vehicle.isDeleted === "false")
+    .map((vehicle) => ({
+      id: vehicle._id,
+      image: vehicle.image[0],
+      registeration_number: vehicle.registeration_number,
+      company: vehicle.company,
+      name: vehicle.name,
+      status: !vehicle.isAdminApproved,
+    })) || []
 
       const isVendorVehiclesEmpty = vendorVehilces && vendorVehilces.length === 0;
   return (

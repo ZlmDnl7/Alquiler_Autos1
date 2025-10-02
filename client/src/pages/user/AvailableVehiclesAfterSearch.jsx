@@ -59,13 +59,12 @@ const AvailableVehiclesAfterSearch = () => {
       )}
 
       <div className=" mx-auto flex sm:flex-row  w-full  lg:grid lg:max-w-[1000px]  lg:grid-cols-3 justify-center items-center gap-5 flex-wrap mt-10 drop-shadow-md">
-        {availableCars &&
-          availableCars.map(
-            (cur, idx) =>
+        {availableCars?.map(
+            (cur) =>
               cur.isDeleted === "false" && (
                 <div
                   className="bg-white box-shadow rounded-lg  drop-shadow "
-                  key={idx}
+                  key={cur._id}
                 >
                   <div className="mx-auto max-w-[320px] px-4 py-2 sm:px-6 sm:py-0 lg:max-w-7xl lg:px-8">
                     <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden object-contain rounded-md bg-white lg:aspect-none group-hover:opacity-75 lg:h-80 mb-3">
@@ -110,7 +109,6 @@ const AvailableVehiclesAfterSearch = () => {
                           {cur.car_type}
                         </p>
                         <p className="flex justify-between items-center gap-1">
-                          <>
                             <button
                               className="bg-green-500 rounded-sm text-black px-6 py-2"
                               onClick={() => {
@@ -119,7 +117,6 @@ const AvailableVehiclesAfterSearch = () => {
                             >
                               Seleccionar
                             </button>
-                          </>
                         </p>
                       </div>
                     </div>
@@ -128,7 +125,7 @@ const AvailableVehiclesAfterSearch = () => {
               )
           )}
       </div>
-      {!availableCars || (availableCars.length == 0 && <CarNotFound />)}
+      {!availableCars || (availableCars.length === 0 && <CarNotFound />)}
     </div>
   );
 };
