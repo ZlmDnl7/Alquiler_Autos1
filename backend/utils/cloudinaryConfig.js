@@ -15,3 +15,6 @@ export const cloudinaryConfig = (req, res, next) => {
 };
 
 export { cloudinary };
+
+// Crear y exportar uploader para compatibilidad
+export const uploader = cloudinary.uploader;
