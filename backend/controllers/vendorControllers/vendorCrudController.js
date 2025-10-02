@@ -2,6 +2,7 @@ import { errorHandler } from "../../utils/error.js";
 import Vehicle from "../../models/vehicleModel.js";
 import { uploader } from "../../utils/cloudinaryConfig.js";
 import { base64Converter } from "../../utils/multer.js";
+import mongoose from "mongoose";
 
 // vendor add vehicle
 export const vendorAddVehicle = async (req, res, next) => {
@@ -206,8 +207,14 @@ export const vendorEditVehicles = async (req, res, next) => {
 export const vendorDeleteVehicles = async (req, res, next) => {
   try {
     const vehicle_id = req.params.id;
+    
+    // Validar que vehicle_id sea un ObjectId válido
+    if (!vehicle_id || !mongoose.Types.ObjectId.isValid(vehicle_id)) {
+      return next(errorHandler(400, "Invalid vehicle ID"));
+    }
+    
     const softDeleted = await Vehicle.findOneAndUpdate(
-      { _id: vehicle_id },
+      { _id: new mongoose.Types.ObjectId(vehicle_id) },
       { isDeleted: "true" },
       { new: true }
     );
@@ -230,13 +237,18 @@ export const showVendorVehicles = async (req, res, next) => {
     }
 
     const { _id } = req.body;
+    
+    // Validar que _id sea un ObjectId válido
+    if (!_id || !mongoose.Types.ObjectId.isValid(_id)) {
+      return next(errorHandler(400, "Invalid vendor ID"));
+    }
 
     const vendorsVehicles = await Vehicle.aggregate([
       {
         $match: {
           isDeleted: "false",
           isAdminAdded: false,
-          addedBy: _id,
+          addedBy: new mongoose.Types.ObjectId(_id),
         },
       },
     ]);
