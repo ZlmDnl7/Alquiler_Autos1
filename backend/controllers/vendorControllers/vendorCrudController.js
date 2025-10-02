@@ -239,8 +239,6 @@ export const showVendorVehicles = async (req, res, next) => {
 
     const { _id } = req.body;
     
-    // ID recibido del vendedor validado más abajo
-    
     // Validar que _id sea un ObjectId válido
     if (!_id || !mongoose.Types.ObjectId.isValid(_id)) {
       return next(errorHandler(400, "Invalid vendor ID"));
@@ -249,12 +247,6 @@ export const showVendorVehicles = async (req, res, next) => {
     // Primero, verificar si el vendedor existe
     const vendor = await User.findById(_id);
     
-    // Buscar TODOS los vehículos para debug
-    const allVehicles = await Vehicle.find({});
-    
-    // Mostrar algunos vehículos para debug
-    // (logs de diagnóstico removidos)
-
     // Usar find() con ObjectId saneado para evitar usar datos de usuario directamente
     const vendorsVehicles = await Vehicle.find({
       isDeleted: "false",

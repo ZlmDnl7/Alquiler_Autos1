@@ -2,7 +2,7 @@ module.exports = {
   projects: [
     {
       displayName: 'backend',
-      testMatch: ['<rootDir>/backend/test.js'],
+      testMatch: ['**/backend/test.js'],
       collectCoverageFrom: [
         'backend/**/*.js',
         '!backend/node_modules/**',
@@ -10,8 +10,11 @@ module.exports = {
         '!backend/test.js'
       ],
       coverageDirectory: 'coverage',
-      coverageReporters: ['text', 'lcov', 'html'],
-      testEnvironment: 'node'
+      testEnvironment: 'node',
+      transform: {},
+      testEnvironmentOptions: {
+        customExportConditions: ['node', 'node-addons']
+      }
     }
   ],
   collectCoverage: true,

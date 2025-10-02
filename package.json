@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "cd backend && nodemon server.js",
     "start": "node backend/server.js",
-    "test": "jest -c jest.config.cjs",
-    "test:coverage": "jest -c jest.config.cjs --coverage",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js -c jest.config.cjs",
+    "test:coverage": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js -c jest.config.cjs --coverage",
     "test:watch": "jest --watch",
     "sonar": "sonar-scanner",
     "sonar:backend": "cd backend && sonar-scanner",
