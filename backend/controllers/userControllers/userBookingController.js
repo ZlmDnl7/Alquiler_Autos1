@@ -624,60 +624,24 @@ export const updateExistingStatuses = async (req, res, next) => {
   try {
     console.log("🔄 Actualizando estados existentes...");
     
-    // Actualizar estados antiguos a nuevos
+    // Actualizar estados antiguos a nuevos usando $switch para evitar problemas de "then"
     const result = await Booking.updateMany(
       { status: { $in: ["notBooked", "booked", "onTrip", "notPicked", "canceled", "overDue", "tripCompleted"] } },
       [
         {
           $set: {
             status: {
-              $cond: {
-                if: { $eq: ["$status", "notBooked"] },
-                // eslint-disable-next-line sonarjs/no-then
-                then: "noReservado",
-                else: {
-                  $cond: {
-                    if: { $eq: ["$status", "booked"] },
-                    // eslint-disable-next-line sonarjs/no-then
-                    then: "reservado",
-                    else: {
-                      $cond: {
-                        if: { $eq: ["$status", "onTrip"] },
-                        // eslint-disable-next-line sonarjs/no-then
-                        then: "enViaje",
-                        else: {
-                          $cond: {
-                            if: { $eq: ["$status", "notPicked"] },
-                            // eslint-disable-next-line sonarjs/no-then
-                            then: "noRecogido",
-                            else: {
-                              $cond: {
-                                if: { $eq: ["$status", "canceled"] },
-                                // eslint-disable-next-line sonarjs/no-then
-                                then: "cancelado",
-                                else: {
-                                  $cond: {
-                                    if: { $eq: ["$status", "overDue"] },
-                                    // eslint-disable-next-line sonarjs/no-then
-                                    then: "vencido",
-                                    else: {
-                                      $cond: {
-                                        if: { $eq: ["$status", "tripCompleted"] },
-                                        // eslint-disable-next-line sonarjs/no-then
-                                        then: "viajeCompletado",
-                                        else: "$status"
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
+              $switch: {
+                branches: [
+                  { case: { $eq: ["$status", "notBooked"] }, then: "noReservado" },
+                  { case: { $eq: ["$status", "booked"] }, then: "reservado" },
+                  { case: { $eq: ["$status", "onTrip"] }, then: "enViaje" },
+                  { case: { $eq: ["$status", "notPicked"] }, then: "noRecogido" },
+                  { case: { $eq: ["$status", "canceled"] }, then: "cancelado" },
+                  { case: { $eq: ["$status", "overDue"] }, then: "vencido" },
+                  { case: { $eq: ["$status", "tripCompleted"] }, then: "viajeCompletado" }
+                ],
+                default: "$status"
               }
             }
           }

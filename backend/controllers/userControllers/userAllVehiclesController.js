@@ -152,21 +152,15 @@ export const searchCar = async (req, res, next) => {
             $project: {
               _id: 1,
               vehicles: {
-                $cond: {
-                  if: {
-                    $gt: [
-                      {
-                        $size: "$vehicles",
-                      },
-                      1,
-                    ],
-                  },
-                  // eslint-disable-next-line sonarjs/no-then
-                  then: {
-                    $arrayElemAt: ["$vehicles", 0],
-                  },
-                  else: "$vehicles",
-                },
+                $switch: {
+                  branches: [
+                    {
+                      case: { $gt: [{ $size: "$vehicles" }, 1] },
+                      then: { $arrayElemAt: ["$vehicles", 0] }
+                    }
+                  ],
+                  default: "$vehicles"
+                }
               },
             },
           },
