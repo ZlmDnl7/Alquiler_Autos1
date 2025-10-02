@@ -50,7 +50,7 @@ export const vendorSignin = async (req, res, next) => {
     }
    
     const token = Jwt.sign({ id: validVendor._id }, process.env.ACCESS_TOKEN);
-    const { password: _, ...rest } = validVendor;
+    const { password, ...rest } = validVendor;
     const thirtyDaysInMilliseconds = 30 * 24 * 60 * 60 * 1000;
 
     res

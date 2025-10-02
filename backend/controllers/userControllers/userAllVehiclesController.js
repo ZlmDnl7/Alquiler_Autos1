@@ -161,6 +161,7 @@ export const searchCar = async (req, res, next) => {
                       1,
                     ],
                   },
+                  // eslint-disable-next-line sonarjs/no-then
                   then: {
                     $arrayElemAt: ["$vehicles", 0],
                   },
