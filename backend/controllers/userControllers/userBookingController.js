@@ -103,23 +103,19 @@ export const razorpayOrder = async (req, res, next) => {
 // getting vehicles without booking for selected Date and location
 export const getVehiclesWithoutBooking = async (req, res, next) => {
   try {
-    const { pickUpDistrict, pickUpLocation, pickupDate, dropOffDate, model } =
-      req.body;
+    const { pickUpDistrict, pickUpLocation, pickupDate, dropOffDate, model } = req.body;
 
     if (!pickUpDistrict || !pickUpLocation)
       return next(errorHandler(409, "pickup District and location needed"));
 
     if (!pickupDate || !dropOffDate)
-      return next(errorHandler(409, "pickup , dropffdate  is required"));
+      return next(errorHandler(409, "pickup and dropoff date is required"));
 
     // Check if pickupDate is before dropOffDate
     if (pickupDate >= dropOffDate)
       return next(errorHandler(409, "Invalid date range"));
 
-    const vehiclesAvailableAtDate = await availableAtDate(
-      pickupDate,
-      dropOffDate
-    );
+    const vehiclesAvailableAtDate = await availableAtDate(pickupDate, dropOffDate);
 
     if (!vehiclesAvailableAtDate) {
       return res.status(404).json({
@@ -131,7 +127,7 @@ export const getVehiclesWithoutBooking = async (req, res, next) => {
     const availableVehicles = vehiclesAvailableAtDate.filter(
       (cur) =>
         cur.district === pickUpDistrict &&
-        cur.location == pickUpLocation &&
+        cur.location === pickUpLocation &&
         cur.isDeleted === "false"
     );
 
