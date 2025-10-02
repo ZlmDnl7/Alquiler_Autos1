@@ -22,6 +22,9 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import {  setLoading, setadminAddVehicleSuccess, setadminCrudError } from "../../../redux/adminSlices/adminDashboardSlice/StatusSlice";
 
+// TextField component moved outside of parent component
+const CustomTextField = (props) => <TextField {...props} />;
+
 export const fetchModelData = async (dispatch) => {
   try {
     const res = await fetch("/api/admin/getVehicleModels", {
@@ -205,7 +208,7 @@ const AddProductModal = () => {
                         error={Boolean(field.value == "")}
                       >
                         {companyData.map((cur, idx) => (
-                          <MenuItem value={cur} key={idx}>
+                          <MenuItem value={cur} key={`company-${cur}-${idx}`}>
                             {cur}
                           </MenuItem>
                         ))}
@@ -233,7 +236,7 @@ const AddProductModal = () => {
                         error={Boolean(field.value == "")}
                       >
                         {modelData.map((cur, idx) => (
-                          <MenuItem value={cur} key={idx}>
+                          <MenuItem value={cur} key={`model-${cur}-${idx}`}>
                             {cur}
                           </MenuItem>
                         ))}
@@ -352,7 +355,7 @@ const AddProductModal = () => {
                         error={Boolean(field.value == "")}
                       >
                         {locationData.map((cur, idx) => (
-                          <MenuItem value={cur} key={idx}>
+                          <MenuItem value={cur} key={`location-${cur}-${idx}`}>
                             {cur}
                           </MenuItem>
                         ))}
@@ -373,7 +376,7 @@ const AddProductModal = () => {
                         error={Boolean(field.value == "")}
                       >
                         {districtData.map((cur, idx) => (
-                          <MenuItem value={cur} key={idx}>
+                          <MenuItem value={cur} key={`district-${cur}-${idx}`}>
                             {cur}
                           </MenuItem>
                         ))}
@@ -408,7 +411,7 @@ const AddProductModal = () => {
                           inputFormat="MM/dd/yyyy" // Customize the date format as per your requirement
                           value={field.value || null} // Ensure value is null if empty string or undefined
                           onChange={(date) => field.onChange(date)}
-                          textField={(props) => <TextField {...props} />}
+                          textField={CustomTextField}
                         />
                       </LocalizationProvider>
                     )}
@@ -425,7 +428,7 @@ const AddProductModal = () => {
                           inputFormat="MM/dd/yyyy" // Customize the date format as per your requirement
                           value={field.value || null} // Ensure value is null if empty string or undefined
                           onChange={(date) => field.onChange(date)}
-                          textField={(props) => <TextField {...props} />}
+                          textField={CustomTextField}
                         />
                       </LocalizationProvider>
                     )}
@@ -442,7 +445,7 @@ const AddProductModal = () => {
                           inputFormat="MM/dd/yyyy" // Customize the date format as per your requirement
                           value={field.value || null} // Ensure value is null if empty string or undefined
                           onChange={(date) => field.onChange(date)}
-                          textField={(props) => <TextField {...props} />}
+                          textField={CustomTextField}
                         />
                       </LocalizationProvider>
                     )}

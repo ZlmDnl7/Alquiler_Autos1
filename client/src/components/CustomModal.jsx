@@ -79,7 +79,7 @@ const Modal = ({
 
   return (
     <Portal>
-        <dialog
+        <div
           className={`fixed top-0 left-0 bottom-0 right-0 flex items-center justify-center overflow-hidden bg-black bg-opacity-80 backdrop-blur-md duration-500 ${
             isOpen
               ? "opacity-1 z-[1000] transition-opacity"
@@ -88,8 +88,9 @@ const Modal = ({
           onClick={checkOutsideAndCloseModal}
           onMouseDown={handleMouseDown}
           onKeyDown={(e) => e.key === 'Escape' && onClose()}
+          role="dialog"
           aria-modal="true"
-          open={isOpen}
+          tabIndex={-1}
         >
           <div
             ref={modalRef}
@@ -123,7 +124,7 @@ const Modal = ({
             )}
             <div>{children}</div>
           </div>
-        </dialog>
+        </div>
     </Portal>
   );
 };

@@ -23,12 +23,13 @@ const UserOrderDetailsModal = () => {
   return (
     <>
       {isOrderModalOpen ? (
-        <dialog
+        <div
           className="fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-black bg-opacity-60 opacity-100 backdrop-blur-sm transition duration-300 ease-in-out overflow-scroll"
           onClick={closeModal}
           onKeyDown={(e) => e.key === 'Escape' && closeModal()}
+          role="dialog"
           aria-modal="true"
-          open
+          tabIndex={-1}
         >
           <div className=" relative m-4 mx-auto  min-w-[300px] md:min-w-[500px] max-w-[40%]  rounded-lg bg-white font-sans text-base font-light leading-relaxed text-blue-gray-500 antialiased shadow-2xl">
             <div className="relative pt-10 p-4 antialiased capitalize font-medium text-[10px] md:text-[16px] ">
@@ -118,7 +119,7 @@ const UserOrderDetailsModal = () => {
               </button>
             </div>
           </div>
-        </dialog>
+        </div>
       ) : (
         <div className="absolute top-0"></div>
       )}

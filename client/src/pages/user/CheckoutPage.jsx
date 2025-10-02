@@ -69,6 +69,26 @@ const validateFormData = (data) => {
          !localPickupLocation || !localDropoffDistrict || !localDropoffLocation;
 };
 
+// Helper function for fuel type display
+const getFuelTypeDisplay = (fuelType) => {
+  const fuelTypeMap = {
+    'petrol': 'Gasolina',
+    'diesel': 'Diésel',
+    'electirc': 'Eléctrico',
+    'hybrid': 'Híbrido'
+  };
+  return fuelTypeMap[fuelType] || fuelType;
+};
+
+// Helper function for transmission display
+const getTransmissionDisplay = (transmission) => {
+  const transmissionMap = {
+    'manual': 'Manual',
+    'automatic': 'Automática'
+  };
+  return transmissionMap[transmission] || transmission;
+};
+
 const CheckoutPage = () => {
   const {
     handleSubmit,
@@ -395,20 +415,14 @@ const CheckoutPage = () => {
                     <div className="bg-white rounded-lg p-3 shadow-sm">
                       <p className="text-xs text-gray-500 uppercase tracking-wide">Combustible</p>
                       <p className="font-semibold text-gray-800">
-                        {singleVehicleDetail.fuel_type === 'petrol' ? 'Gasolina' : 
-                         singleVehicleDetail.fuel_type === 'diesel' ? 'Diésel' : 
-                         singleVehicleDetail.fuel_type === 'electirc' ? 'Eléctrico' : 
-                         singleVehicleDetail.fuel_type === 'hybrid' ? 'Híbrido' : 
-                         singleVehicleDetail.fuel_type}
+                        {getFuelTypeDisplay(singleVehicleDetail.fuel_type)}
                       </p>
                     </div>
                     
                     <div className="bg-white rounded-lg p-3 shadow-sm">
                       <p className="text-xs text-gray-500 uppercase tracking-wide">Transmisión</p>
                       <p className="font-semibold text-gray-800">
-                        {singleVehicleDetail.transmition === 'manual' ? 'Manual' : 
-                         singleVehicleDetail.transmition === 'automatic' ? 'Automática' : 
-                         singleVehicleDetail.transmition}
+                        {getTransmissionDisplay(singleVehicleDetail.transmition)}
                       </p>
                     </div>
                     
@@ -473,11 +487,12 @@ const CheckoutPage = () => {
                     
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <label htmlFor="pickup-district" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                           <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                           Ciudad de Recogida *
                         </label>
                         <input
+                          id="pickup-district"
                           type="text"
                           placeholder="Ej: Medellín, Bogotá, Nueva York..."
                           className="w-full px-8 py-5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 bg-gray-50 hover:bg-white text-lg"
@@ -490,11 +505,12 @@ const CheckoutPage = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <label htmlFor="pickup-location" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                           <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                           📍 Punto de Recogida *
                         </label>
                         <input
+                          id="pickup-location"
                           type="text"
                           placeholder="Ej: Centro Comercial Santa Ana, Aeropuerto..."
                           className="w-full px-8 py-5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 bg-gray-50 hover:bg-white text-lg"
@@ -507,11 +523,12 @@ const CheckoutPage = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <label htmlFor="pickup-datetime" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                           <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                           📅 Fecha y Hora de Recogida *
                         </label>
                         <input
+                          id="pickup-datetime"
                           type="datetime-local"
                           className="w-full px-8 py-5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 bg-gray-50 hover:bg-white text-lg"
                           value={localPickupDateTime}
@@ -536,11 +553,12 @@ const CheckoutPage = () => {
                     
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <label htmlFor="dropoff-district" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                           <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                           Ciudad de Devolución *
                         </label>
                         <input
+                          id="dropoff-district"
                           type="text"
                           placeholder="Ej: Medellín, Bogotá, Nueva York..."
                           className="w-full px-8 py-5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white text-lg"
@@ -553,11 +571,12 @@ const CheckoutPage = () => {
                   </div>
 
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <label htmlFor="dropoff-location" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                           <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                           📍 Punto de Devolución *
                         </label>
                         <input
+                          id="dropoff-location"
                           type="text"
                           placeholder="Ej: Hotel Hilton, Estación Central..."
                           className="w-full px-8 py-5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white text-lg"
@@ -570,11 +589,12 @@ const CheckoutPage = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <label htmlFor="dropoff-datetime" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                           <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                           📅 Fecha y Hora de Devolución *
                         </label>
                         <input
+                          id="dropoff-datetime"
                           type="datetime-local"
                           className="w-full px-8 py-5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white text-lg"
                           value={localDropoffDateTime}
@@ -641,7 +661,7 @@ const CheckoutPage = () => {
                   variant="outlined"
                   size="medium"
                   className="w-full"
-                  defaultValue={email ? email : ""}
+                  defaultValue={email || ""}
                   {...register("email")}
                   sx={{
                     '& .MuiOutlinedInput-root': {
@@ -680,7 +700,7 @@ const CheckoutPage = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Teléfono:</span>
                     <span className="font-semibold text-gray-800">
-                      {phoneNumber ? phoneNumber : "No configurado"}
+                      {phoneNumber || "No configurado"}
                     </span>
                     </div>
                 </div>
