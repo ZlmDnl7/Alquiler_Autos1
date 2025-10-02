@@ -45,7 +45,7 @@ export const tokensDark = {
   // function that reverses the color palette
   function reverseTokens(tokensDark) {
     const reversedTokens = {};
-    Object.entries(tokensDark).forEach(([key, val]) => {
+    for (const [key, val] of Object.entries(tokensDark)) {
       const keys = Object.keys(val);
       const values = Object.values(val);
       const length = keys.length;
@@ -54,7 +54,7 @@ export const tokensDark = {
         reversedObj[keys[i]] = values[length - i - 1];
       }
       reversedTokens[key] = reversedObj;
-    });
+    }
     return reversedTokens;
   }
   export const tokensLight = reverseTokens(tokensDark);

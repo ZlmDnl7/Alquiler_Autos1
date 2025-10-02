@@ -32,18 +32,19 @@ const bookingDataSlice = createSlice({
       state.dropoff_location = dropoff_location;
 
       // Set pickupDate and dropoffDate
-      (state.pickupDate = {
+      state.pickupDate = {
         day: pickuptime.$D,
         month: pickuptime.$M,
         year: pickuptime.$y,
         humanReadable: pickuptime.$d,
-      }),
-        (state.dropoffDate = {
-          day: dropofftime.$D,
-          month: dropofftime.$M,
-          year: dropofftime.$y,
-          humanReadable: dropofftime.$d,
-        });
+      };
+      
+      state.dropoffDate = {
+        day: dropofftime.$D,
+        month: dropofftime.$M,
+        year: dropofftime.$y,
+        humanReadable: dropofftime.$d,
+      };
 
       // Set pickuptime and dropofftime
       state.pickuptime = {

@@ -30,7 +30,6 @@ const ProfileEdit = () => {
           },
           body: JSON.stringify({ formData }),
         });
-        // dispatch(editUserProfile(null));
         dispatch(setUpdated(true));
       }
     } catch (error) {

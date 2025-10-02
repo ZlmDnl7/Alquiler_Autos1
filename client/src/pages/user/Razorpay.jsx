@@ -126,7 +126,7 @@ export async function displayRazorpay(values, navigate, dispatch) {
       },
     };
 
-    const paymentObject = new window.Razorpay(options);
+    const paymentObject = new globalThis.Razorpay(options);
     paymentObject.open();
     dispatch(setPageLoading(false));
   } catch (error) {

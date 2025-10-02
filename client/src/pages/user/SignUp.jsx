@@ -19,7 +19,7 @@ const schema = z.object({
     .min(8, { message: "Mínimo 8 caracteres" })
     .regex(/[A-Z]/, { message: "Al menos una mayúscula" })
     .regex(/[a-z]/, { message: "Al menos una minúscula" })
-    .regex(/[0-9]/, { message: "Al menos un número" })
+    .regex(/\d/, { message: "Al menos un número" })
     .regex(/[^A-Za-z0-9]/, { message: "Al menos un carácter especial" }),
   confirmPassword: z.string()
     .min(1, { message: "Confirma tu contraseña" }),
@@ -35,13 +35,13 @@ function SignUp() {
     formState: { errors },
   } = useForm({ resolver: zodResolver(schema) });
 
-  const [isError, setError] = useState(false);
-  const [isLoading, setLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const onSubmit = async (formData, e) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
     try {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
@@ -49,21 +49,21 @@ function SignUp() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      setLoading(false);
+      setIsLoading(false);
       if (data.succes === false) {
-        setError(true);
+        setIsError(true);
         return;
       }
-      setError(false);
+      setIsError(false);
       navigate("/signin");
     } catch (error) {
-      setLoading(false);
-      setError(true);
+      console.error("Error during signup:", error);
+      setIsLoading(false);
+      setIsError(true);
     }
   };
 
   return (
-    <>
       <div
         className={`pb-10 max-w-lg mx-auto mt-16  rounded-lg overflow-hidden  shadow-2xl`}
       >
@@ -165,7 +165,6 @@ function SignUp() {
         </form>
 
       </div>
-    </>
   );
 }
 

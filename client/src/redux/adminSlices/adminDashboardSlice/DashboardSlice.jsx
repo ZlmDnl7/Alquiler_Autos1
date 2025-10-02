@@ -20,11 +20,11 @@ export const adminDashboardSlice = createSlice({
             state.activeMenu = !state.activeMenu
         },
         openPages:(state,action)=> {
-            Object.keys(state).forEach(key => {
+            for (const key of Object.keys(state)) {
                 if(key !== "activeMenu" && key!=="screenSize" && key!== action.payload){
                     state[key] = false
                 }
-            })
+            }
             state[action.payload] = true
         },
         setScreenSize:(state,action)=> {
@@ -34,13 +34,11 @@ export const adminDashboardSlice = createSlice({
             state.activeMenu = action.payload
         },
         toggleNavbarPage:(state,action)=> {
-            Object.entries(state).forEach(([key])=> {
-               
+            for (const [key] of Object.entries(state)) {
                 if(key === action.payload){
                     state[key] = false
-                    
                 }
-            })
+            }
         }
     
     }

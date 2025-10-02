@@ -16,18 +16,18 @@ const sortfilterSlice = createSlice({
       state.data = action.payload;
     },
     setPriceLowtoHigh: (state) => {
-      state.filterdData = state.filterdData.sort((a, b) => a.price - b.price);
+      state.filterdData = state.filterdData.toSorted((a, b) => a.price - b.price);
     },
     setPriceHightoLow: (state) => {
-      state.filterdData = state.filterdData.sort((a, b) => b.price - a.price);
+      state.filterdData = state.filterdData.toSorted((a, b) => b.price - a.price);
     },
     setYearAscending: (state) => {
-      state.filterdData = state.filterdData.sort(
+      state.filterdData = state.filterdData.toSorted(
         (a, b) => a.year_made - b.year_made
       );
     },
     setYearDecending: (state) => {
-      state.filterdData = state.filterdData.sort(
+      state.filterdData = state.filterdData.toSorted(
         (a, b) => b.year_made - a.year_made
       );
     },

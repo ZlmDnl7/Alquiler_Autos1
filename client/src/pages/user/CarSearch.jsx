@@ -78,41 +78,16 @@ const CarSearch = () => {
 
   const dispatch = useDispatch();
 
-  // Ya no necesitamos cargar ubicaciones preestablecidas
-  // useEffect(() => {
-  //   fetchLov();
-  // }, []);
-
-  // Ya no necesitamos estos useEffects
-  // useEffect(() => {
-  //   console.log("🔍 DEBUG FILTROS:");
-  //   console.log("districtData:", districtData);
-  //   console.log("uniqueDistrict:", uniqueDistrict);
-  //   console.log("selectedDistrict:", selectedDistrict);
-  //   console.log("locationsOfDistrict:", locationsOfDistrict);
-  //   console.log("wholeData:", wholeData);
-  // }, [districtData, uniqueDistrict, selectedDistrict, locationsOfDistrict, wholeData]);
-
-  // useEffect(() => {
-  //   if (selectedDistrict !== null) {
-  //     const showLocationInDistrict = wholeData
-  //       .filter((cur) => {
-  //         return cur.district === selectedDistrict;
-  //       })
-  //       .map((cur) => cur.location);
-  //     dispatch(setLocationsOfDistrict(showLocationInDistrict));
-  //   }
-  // }, [selectedDistrict]);
 
   // Helper function to clear form elements
   const clearFormElements = () => {
     const elements = ["pickup_district", "pickup_location", "dropoff_location"];
-    elements.forEach(id => {
+    for (const id of elements) {
       const element = document.getElementById(id);
       if (element) {
         element.innerHTML = "";
       }
-    });
+    }
   };
 
   // Helper function to reset form
