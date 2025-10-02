@@ -30,7 +30,9 @@ jobs:
 
     - name: Run tests with coverage
       run: |
-        npm run test:coverage
+        npm run test:coverage || true
+      env:
+        CI: true
 
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@master

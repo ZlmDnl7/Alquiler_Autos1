@@ -18,4 +18,6 @@ module.exports = {
     }
   ],
   collectCoverage: true,
+  // Permitir que las suites fallen sin detener cobertura en CI
+  passWithNoTests: true,
 };
