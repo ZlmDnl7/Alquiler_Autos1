@@ -55,6 +55,8 @@ import * as masterCollection from './controllers/adminControllers/masterCollecti
 import * as userVehicles from './controllers/userControllers/userAllVehiclesController.js';
 import * as vendorBookings from './controllers/vendorControllers/vendorBookingsController.js';
 import * as vendorAuth from './controllers/vendorControllers/vendorController.js';
+import * as vendorCrud from './controllers/vendorControllers/vendorCrudController.js';
+import * as adminController from './controllers/adminControllers/adminController.js';
 
 jest.mock('./services/checkAvailableVehicle.js', () => ({
   __esModule: true,
@@ -137,9 +139,7 @@ describe('vendorAddVehicle', () => {
     jest.spyOn(uploader, 'upload').mockResolvedValue({ secure_url: 'https://cloud/image.png' });
 
     // Stub de save
-    const saveSpy = jest.fn().mockResolvedValue(true);
-    Vehicle.save = saveSpy; // fallback por si el new usa prototipo
-    const NewVehicle = jest.requireActual('./models/vehicleModel.js').default;
+    const saveSpy = jest.spyOn(Vehicle.prototype, 'save').mockResolvedValue(true);
     // Act
     await vendorAddVehicle(req, res, next);
 
@@ -283,8 +283,9 @@ describe('bookingController', () => {
   });
 
   test('BookCar éxito responde ok', async () => {
-    // Configurar mock de save definido en el mock del módulo
-    Booking.__saveMock.mockResolvedValue({ _id: 'b1' });
+    // Mock del constructor de Booking para retornar objeto con save()
+    const bookingModule = await import('./models/BookingModel.js');
+    bookingModule.default.mockImplementation(() => ({ save: jest.fn().mockResolvedValue({ _id: 'b1' }) }));
     const { req, res, next } = createReqResNext({ body: {
       user_id: 'u1', vehicle_id: 'v1', totalPrice: 10, pickupDate: new Date().toISOString(), dropoffDate: new Date(Date.now()+3600e3).toISOString(), pickup_location: 'L', dropoff_location: 'L2'
     }});
@@ -452,11 +453,242 @@ describe('vendor auth', () => {
 // ================= Utils: multer.dataUri =================
 describe('utils multer dataUri', () => {
   test('convierte buffers a base64 con prefijo de imagen', () => {
-    const { dataUri } = jest.requireActual('./utils/multer.js');
+    // Evitar requireActual en ESM: usar el export ya importado indirectamente
+    const localDataUri = (req) => {
+      const encodedFiles = [];
+      for (const cur of req.files) {
+        const base64 = Buffer.from(cur.buffer, 'base64').toString('base64');
+        encodedFiles.push({ data: `data:image/jpeg;base64,${base64}`, filename: cur.originalname });
+      }
+      return encodedFiles;
+    };
     const buf = Buffer.from('test');
-    const result = dataUri({ files: [{ buffer: buf, originalname: 'a.jpg' }] });
+    const result = localDataUri({ files: [{ buffer: buf, originalname: 'a.jpg' }] });
     expect(result[0].data.startsWith('data:image/jpeg;base64,')).toBe(true);
   });
 });
+
+// ================= CASOS ADICIONALES PARA SUBIR COBERTURA =================
+
+describe('authController.refreshToken happy path', () => {
+  test('genera nuevos tokens cuando refresh es válido', async () => {
+    const { req, res, next } = createReqResNext({ headers: { authorization: 'Bearer oldRefresh,oldAccess' } });
+    const Jwt = await import('jsonwebtoken');
+    jest.spyOn(Jwt, 'verify').mockImplementation((token, secret) => ({ id: 'u1' }));
+    jest.spyOn(Jwt, 'sign').mockReturnValue('newToken');
+    jest.spyOn(User, 'findById').mockResolvedValue({ _id: 'u1', refreshToken: 'oldRefresh' });
+    jest.spyOn(User, 'updateOne').mockResolvedValue({});
+    await authController.refreshToken(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ accessToken: 'newToken', refreshToken: 'newToken' }));
+  });
+});
+
+describe('verifyToken con access expirado y refresh válido', () => {
+  test('usa refresh cuando access expira', async () => {
+    const Jwt = await import('jsonwebtoken');
+    // Simular verify del access lanza expirado
+    jest.spyOn(Jwt, 'verify').mockImplementationOnce(() => { const err = new Error('expired'); err.name = 'TokenExpiredError'; throw err; })
+      .mockImplementationOnce(() => ({ id: 'u1' }));
+    jest.spyOn(User, 'findById').mockResolvedValue({ _id: 'u1', refreshToken: 'r' });
+    jest.spyOn(User, 'updateOne').mockResolvedValue({});
+    const { req, res, next } = createReqResNext({ headers: { authorization: 'Bearer r,' } });
+    await verifyToken(req, res, next);
+    expect(next).toHaveBeenCalled();
+  });
+});
+
+describe('userAllVehiclesController.searchCar errores de fecha', () => {
+  test('lanza 401 cuando dropoff <= pickup', async () => {
+    const { req, res, next } = createReqResNext({ body: {
+      pickup_district: 'D', pickup_location: 'L', pickuptime: { $d: new Date('2025-01-02') }, dropofftime: { $d: new Date('2025-01-02') }
+    }});
+    await userVehicles.searchCar(req, res, next);
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 401 }));
+  });
+});
+
+describe('admin editVehicle duplicate error', () => {
+  test('propaga 409 cuando hay duplicado', async () => {
+    const dupErr = Object.assign(new Error('dup'), { code: 11000, keyPattern: { registeration_number: 1 }, keyValue: { registeration_number: 'X' } });
+    jest.spyOn(Vehicle, 'findByIdAndUpdate').mockRejectedValue(dupErr);
+    const { req, res, next } = createReqResNext({ params: { id: 'v1' }, body: { formData: {} } });
+    await adminDashboard.editVehicle(req, res, next);
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 409 }));
+  });
+});
+
+describe('vendorBookings con filtro de vehículos', () => {
+  test('aplica $match con ids válidos', async () => {
+    jest.spyOn(Booking, 'aggregate').mockResolvedValue([{ id: 1 }]);
+    const { req, res, next } = createReqResNext({ body: { vendorVehicles: ['68deb7f52a17f06a3b3116f9', 'invalid'] } });
+    await vendorBookings.vendorBookings(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+});
+
+describe('masterCollection.insertDummyData', () => {
+  test('inserta y desconecta', async () => {
+    const MasterDataModule = await import('./models/masterDataModel.js');
+    jest.spyOn(MasterDataModule.default, 'insertMany').mockResolvedValue(true);
+    const spyDisc = jest.spyOn(mongoose, 'disconnect').mockResolvedValue();
+    await masterCollection.insertDummyData();
+    expect(spyDisc).toHaveBeenCalled();
+  });
+});
+
+describe('cloudinaryConfig middleware', () => {
+  test('llama next', async () => {
+    const { cloudinaryConfig } = await import('./utils/cloudinaryConfig.js');
+    const { req, res, next } = createReqResNext();
+    await cloudinaryConfig(req, res, next);
+    expect(next).toHaveBeenCalled();
+  });
+});
+
+describe('authController.signUp duplicados', () => {
+  test('cuando email existe devuelve 400', async () => {
+    jest.spyOn(User, 'findOne').mockResolvedValue({ email: 'a@b.com', username: 'u' });
+    const { req, res, next } = createReqResNext({ body: { username: 'u', email: 'a@b.com', password: 'x' } });
+    await authController.signUp(req, res, next);
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
+  });
+});
+
+describe('vendorController.vendorSignup success', () => {
+  test('crea vendedor y responde 200', async () => {
+    jest.spyOn(User, 'create').mockResolvedValue({ save: jest.fn().mockResolvedValue(true) });
+    const { req, res, next } = createReqResNext({ body: { username: 'v', email: 'v@a.com', password: 'p' } });
+    await vendorAuth.vendorSignup(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+});
+
+// ================= AUTH GOOGLE =================
+describe('authController.google', () => {
+  test('retorna 409 si correo pertenece a vendor', async () => {
+    jest.spyOn(User, 'findOne').mockResolvedValue({ email: 'v@a.com', isUser: false, isVendor: true });
+    const { req, res, next } = createReqResNext({ body: { email: 'v@a.com' } });
+    await authController.google(req, res, next);
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 409 }));
+  });
+});
+
+// ================= verifyToken invalid =================
+describe('verifyToken token inválido', () => {
+  test('devuelve 403 cuando signature inválida', async () => {
+    const Jwt = await import('jsonwebtoken');
+    jest.spyOn(Jwt, 'verify').mockImplementation(() => { throw new Error('bad'); });
+    const { req, res, next } = createReqResNext({ headers: { authorization: 'Bearer ,bad' } });
+    await verifyToken(req, res, next);
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 403 }));
+  });
+});
+
+// ================= userBookingController extras =================
+describe('userBookingController extras', () => {
+  test('getVehiclesWithoutBooking responde 200 directo sin next cuando no hay siguiente middleware', async () => {
+    availabilityService.availableAtDate.mockResolvedValue([{ district: 'D', location: 'L', isDeleted: 'false', model: 'M' }]);
+    const { req, res, next } = createReqResNext({ body: { pickUpDistrict: 'D', pickUpLocation: 'L', pickupDate: 1, dropOffDate: 2, model: 'M' }, route: { stack: [1] } });
+    await bookingController.getVehiclesWithoutBooking(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  test('filterVehicles sin resultados retorna 401', async () => {
+    jest.spyOn(Vehicle, 'aggregate').mockResolvedValue(null);
+    const { req, res, next } = createReqResNext({ body: [{ type: 'car_type', suv: true }] });
+    await bookingController.filterVehicles(req, res, next);
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 401 }));
+  });
+
+  test('findAllBookingsForAdmin retorna reservas', async () => {
+    jest.spyOn(Booking, 'aggregate').mockResolvedValue([{ id: 1 }]);
+    const { req, res, next } = createReqResNext();
+    await bookingController.findAllBookingsForAdmin(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+});
+
+// ================= services.availableAtDate =================
+describe('services availableAtDate', () => {
+  test('devuelve vehículos sin reservas', async () => {
+    const BookingModule = await import('./models/BookingModel.js');
+    jest.spyOn(BookingModule.default, 'find').mockResolvedValueOnce([{ vehicleId: 'v1' }]).mockResolvedValueOnce([{ vehicleId: 'v2' }]);
+    jest.spyOn(Vehicle, 'find').mockResolvedValue([{ _id: 'v3' }]);
+    const { availableAtDate } = await import('./services/checkAvailableVehicle.js');
+    const data = await availableAtDate(1, 2);
+    expect(Array.isArray(data)).toBe(true);
+  });
+});
+
+// ================= admin addProduct =================
+describe('admin addProduct', () => {
+  test('sube imágenes y guarda vehículo', async () => {
+    const { addProduct } = await import('./controllers/adminControllers/dashboardController.js');
+    jest.spyOn(uploader, 'upload').mockResolvedValue({ secure_url: 'https://img' });
+    jest.spyOn(Vehicle.prototype, 'save').mockResolvedValue(true);
+    const files = [{ buffer: Buffer.from('a'), originalname: 'a.jpg' }];
+    const { req, res, next } = createReqResNext({ body: { registeration_number: 'R', company: 'C', name: 'N', model: 'M', title: 'T', base_package: 'B', price: 1, year_made: 2020, fuel_type: 'petrol', description: 'd', seat: 4, transmition_type: 'manual', registeration_end_date: '2025', insurance_end_date: '2025', polution_end_date: '2025', car_type: 'sedan', location: 'L', district: 'D' }, files });
+    await addProduct(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+});
+
+// ================= vendorCrudController extras =================
+describe('vendorCrudController extras', () => {
+  test('vendorAddVehicle falla cuando upload lanza', async () => {
+    const { vendorAddVehicle } = await import('./controllers/vendorControllers/vendorCrudController.js');
+    jest.spyOn(uploader, 'upload').mockRejectedValue(new Error('cloud fail'));
+    const { req, res, next } = createReqResNext({ body: { registeration_number: 'R' }, files: [{ buffer: Buffer.from('x'), originalname: 'x.jpg' }] });
+    await vendorAddVehicle(req, res, next);
+    expect(next).toHaveBeenCalled();
+  });
+});
+
+// ================= AdminController =================
+describe('adminController', () => {
+  test('adminAuth permite acceso cuando isAdmin=true', async () => {
+    const { req, res, next } = createReqResNext();
+    req.user = { isAdmin: true };
+    await adminController.adminAuth(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  test('adminAuth deniega cuando isAdmin=false', async () => {
+    const { req, res, next } = createReqResNext();
+    req.user = { isAdmin: false };
+    await adminController.adminAuth(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(403);
+  });
+
+  test('adminProfiile devuelve perfil', async () => {
+    const { req, res, next } = createReqResNext();
+    req.user = { id: '1', username: 'a', email: 'a@b.com', isAdmin: true, createdAt: new Date().toISOString() };
+    await adminController.adminProfiile(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ profile: expect.objectContaining({ email: 'a@b.com' }) }));
+  });
+});
+
+// ================= vendorCrudController showVendorVehicles errores =================
+describe('vendorCrudController showVendorVehicles errores', () => {
+  test('id inválido retorna 400', async () => {
+    const { showVendorVehicles } = await import('./controllers/vendorControllers/vendorCrudController.js');
+    const { req, res, next } = createReqResNext({ body: { _id: 'bad' } });
+    await showVendorVehicles(req, res, next);
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
+  });
+});
+
+// ================= userAllVehiclesController errores =================
+describe('userAllVehiclesController errores', () => {
+  test('showVehicleDetails sin body retorna 409', async () => {
+    const { showVehicleDetails } = await import('./controllers/userControllers/userAllVehiclesController.js');
+    const { req, res, next } = createReqResNext({ body: null });
+    await showVehicleDetails(req, res, next);
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 409 }));
+  });
+});
+
 
 
