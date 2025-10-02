@@ -214,7 +214,7 @@ export const vendorDeleteVehicles = async (req, res, next) => {
     }
     
     const softDeleted = await Vehicle.findOneAndUpdate(
-      { _id: new mongoose.Types.ObjectId(vehicle_id) },
+      { _id: mongoose.Types.ObjectId.createFromHexString(vehicle_id) },
       { isDeleted: "true" },
       { new: true }
     );
@@ -248,7 +248,7 @@ export const showVendorVehicles = async (req, res, next) => {
         $match: {
           isDeleted: "false",
           isAdminAdded: false,
-          addedBy: new mongoose.Types.ObjectId(_id),
+          addedBy: mongoose.Types.ObjectId.createFromHexString(_id),
         },
       },
     ]);

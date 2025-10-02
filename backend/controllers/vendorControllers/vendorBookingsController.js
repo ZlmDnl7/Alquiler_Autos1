@@ -28,7 +28,7 @@ export const vendorBookings = async (req, res, next) => {
           // Validar y sanitizar los IDs de vehículos
           const validVehicleIds = vendorVehicles
             .filter(id => mongoose.Types.ObjectId.isValid(id))
-            .map(id => new mongoose.Types.ObjectId(id));
+            .map(id => mongoose.Types.ObjectId.createFromHexString(id));
           
           if (validVehicleIds.length > 0) {
             pipeline.push({
