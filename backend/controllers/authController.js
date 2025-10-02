@@ -152,7 +152,7 @@ export const signIn = async (req, res, next) => {
     ); //store the refresh token in db
 
     //separating password from the updatedData
-    const { password, isAdmin, ...rest } = updatedData._doc;
+    const { password: userPassword, isAdmin, ...rest } = updatedData._doc;
 
     //not sending users hashed password to frontend
     const responsePayload = {
@@ -207,7 +207,7 @@ export const google = async (req, res, next) => {
       return next(errorHandler(409, "email already in use as a vendor"));
     }
     if (user) {
-      const { password, ...rest } = user;
+      const { password: userPassword, ...rest } = user;
       const token = Jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN);
 
       res
@@ -240,7 +240,7 @@ export const google = async (req, res, next) => {
       const userObject = savedUser.toObject();
 
       const token = Jwt.sign({ id: newUser._id }, process.env.ACCESS_TOKEN);
-      const { password, ...rest } = userObject;
+      const { password: userPassword, ...rest } = userObject;
       res
         .cookie("access_token", token, {
           httpOnly: true,

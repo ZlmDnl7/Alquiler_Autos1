@@ -50,7 +50,7 @@ export const vendorSignin = async (req, res, next) => {
     }
    
     const token = Jwt.sign({ id: validVendor._id }, process.env.ACCESS_TOKEN);
-    const { password, ...rest } = validVendor;
+    const { password: vendorPassword, ...rest } = validVendor;
     const thirtyDaysInMilliseconds = 30 * 24 * 60 * 60 * 1000;
 
     res
@@ -83,7 +83,7 @@ export const vendorGoogle = async (req, res, next) => {
   try {
     const user = await User.findOne({ email: req.body.email }).lean();
     if (user && user.isVendor) {
-      const { password, ...rest } = user;
+      const { password: userPassword, ...rest } = user;
       const token = Jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN);
 
       res
@@ -115,7 +115,7 @@ export const vendorGoogle = async (req, res, next) => {
      const userObject = savedUser.toObject();
      
       const token = Jwt.sign({ id: newUser._id }, process.env.ACCESS_TOKEN);
-      const { password, ...rest } = userObject;
+      const { password: userPassword, ...rest } = userObject;
       res
         .cookie("access_token", token, {
           httpOnly: true,

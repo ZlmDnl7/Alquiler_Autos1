@@ -323,7 +323,7 @@ const CheckoutPage = () => {
                 onClick={() => navigate("/")}
                 className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
               >
-                <span></span> r al Inicio
+                <span></span> Ir al Inicio
               </button>
               
               <button
@@ -333,7 +333,7 @@ const CheckoutPage = () => {
                 }}
                 className="px-8 py-3 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
               >
-                <span></span> acer Otra Reserva
+                <span></span> Hacer Otra Reserva
               </button>
             </div>
             

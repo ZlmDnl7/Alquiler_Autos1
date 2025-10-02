@@ -1,5 +1,6 @@
 import { errorHandler } from "../../utils/error.js";
 import Vehicle from "../../models/vehicleModel.js";
+import User from "../../models/userModel.js";
 import { uploader } from "../../utils/cloudinaryConfig.js";
 import { base64Converter } from "../../utils/multer.js";
 import mongoose from "mongoose";
@@ -238,28 +239,50 @@ export const showVendorVehicles = async (req, res, next) => {
 
     const { _id } = req.body;
     
+    console.log("🔍 showVendorVehicles - Vendor ID recibido:", _id);
+    
     // Validar que _id sea un ObjectId válido
     if (!_id || !mongoose.Types.ObjectId.isValid(_id)) {
       return next(errorHandler(400, "Invalid vendor ID"));
     }
 
-    const vendorsVehicles = await Vehicle.aggregate([
-      {
-        $match: {
-          isDeleted: "false",
-          isAdminAdded: false,
-          addedBy: mongoose.Types.ObjectId.createFromHexString(_id),
-        },
-      },
-    ]);
+    // Primero, verificar si el vendedor existe
+    const vendor = await User.findById(_id);
+    console.log("👤 Vendedor encontrado:", vendor ? "Sí" : "No");
+    
+    // Buscar TODOS los vehículos para debug
+    const allVehicles = await Vehicle.find({});
+    console.log("🚗 Total de vehículos en la BD:", allVehicles.length);
+    
+    // Mostrar algunos vehículos para debug
+    if (allVehicles.length > 0) {
+      console.log("📋 Primeros 3 vehículos:", allVehicles.slice(0, 3).map(v => ({
+        id: v._id,
+        name: v.name,
+        addedBy: v.addedBy,
+        isDeleted: v.isDeleted,
+        isAdminAdded: v.isAdminAdded
+      })));
+    }
+
+    // Usar find() en lugar de aggregate() para simplificar
+    const vendorsVehicles = await Vehicle.find({
+      isDeleted: "false",
+      isAdminAdded: false,
+      addedBy: _id, // Usar el ID directamente como string
+    });
+
+    console.log("🔍 Vehículos del vendedor encontrados:", vendorsVehicles.length);
 
     if (!vendorsVehicles || vendorsVehicles.length === 0) {
-      throw errorHandler(400, "No vehicles found");
+      // En lugar de lanzar error, devolver array vacío
+      console.log("⚠️ No se encontraron vehículos para este vendedor");
+      return res.status(200).json([]);
     }
 
     res.status(200).json(vendorsVehicles);
   } catch (error) {
-    console.error(error);
+    console.error("💥 Error en showVendorVehicles:", error);
     next(errorHandler(500, "Error in showVendorVehicles"));
   }
 };
