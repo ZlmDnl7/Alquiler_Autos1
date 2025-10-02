@@ -1,5 +1,4 @@
-import { useEffect, useRef } from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactDom from "react-dom";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import PropTypes from 'prop-types';
@@ -79,8 +78,7 @@ const Modal = ({
   };
 
   return (
-    <>
-      <Portal>
+    <Portal>
         <div
           className={`fixed top-0 left-0 bottom-0 right-0 flex items-center justify-center overflow-hidden bg-black bg-opacity-80 backdrop-blur-md duration-500 ${
             isOpen
@@ -123,8 +121,7 @@ const Modal = ({
             <div>{children}</div>
           </div>
         </div>
-      </Portal>
-    </>
+    </Portal>
   );
 };
 

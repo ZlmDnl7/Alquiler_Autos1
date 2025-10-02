@@ -1,5 +1,4 @@
 import { errorHandler } from "../../utils/error.js";
-import vehicle from "../../models/vehicleModel.js";
 import Vehicle from "../../models/vehicleModel.js";
 
 import { uploader } from "../../utils/cloudinaryConfig.js";
@@ -59,8 +58,8 @@ export const addProduct = async (req, res, next) => {
       );
 
       try {
-        if (uploadedImages && uploadedImages) {
-          const addVehicle = new vehicle({
+        if (uploadedImages && uploadedImages.length > 0) {
+          const addVehicle = new Vehicle({
             registeration_number,
             company,
             name,
@@ -111,7 +110,7 @@ export const addProduct = async (req, res, next) => {
 //show all vehicles to admin
 export const showVehicles = async (req, res, next) => {
   try {
-    const vehicles = await vehicle.find();
+    const vehicles = await Vehicle.find();
 
     if (!vehicles) {
       return next(errorHandler(404, "no vehicles found"));
@@ -156,7 +155,7 @@ export const editVehicle = async (req, res, next) => {
       return next(errorHandler(401, "cannot be empty"));
     }
 
-    if (!req.body || !req.body.formData) {
+    if (!req.body?.formData) {
       return next(errorHandler(404, "Add data to edit first"));
     }
 

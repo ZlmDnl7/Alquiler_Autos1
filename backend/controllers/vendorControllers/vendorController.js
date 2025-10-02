@@ -9,10 +9,10 @@ const expireDate = new Date(Date.now() + 3600000);
 export const vendorSignup = async (req, res, next) => {
   const { username, email, password } = req.body;
   try {
-    const hadshedPassword = bcryptjs.hashSync(password, 10);
+    const hashedPassword = bcryptjs.hashSync(password, 10);
     const user = await User.create({
       username,
-      password: hadshedPassword,
+      password: hashedPassword,
       email,
       isVendor: true,
     });
@@ -36,7 +36,7 @@ export const vendorSignin = async (req, res, next) => {
     }
    
     const token = Jwt.sign({ id: validVendor._id }, process.env.ACCESS_TOKEN);
-    const { password: hadshedPassword, ...rest } = validVendor;
+    const { password: _, ...rest } = validVendor;
     const thirtyDaysInMilliseconds = 30 * 24 * 60 * 60 * 1000;
 
     res
@@ -69,7 +69,7 @@ export const vendorGoogle = async (req, res, next) => {
   try {
     const user = await User.findOne({ email: req.body.email }).lean();
     if (user && user.isVendor) {
-      const { password: hashedPassword, ...rest } = user;
+      const { password: _, ...rest } = user;
       const token = Jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN);
 
       res
@@ -101,7 +101,7 @@ export const vendorGoogle = async (req, res, next) => {
      const userObject = savedUser.toObject();
      
       const token = Jwt.sign({ id: newUser._id }, process.env.ACCESS_TOKEN);
-      const { password: hashedPassword2, ...rest } = userObject;
+      const { password: _, ...rest } = userObject;
       res
         .cookie("access_token", token, {
           httpOnly: true,

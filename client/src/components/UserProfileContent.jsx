@@ -105,7 +105,7 @@ const UserProfileContent = () => {
                   <div>
                     <p className="text-sm text-gray-500">Teléfono</p>
                     <p className="font-semibold text-gray-800">
-                      {phoneNumber ? phoneNumber : "No configurado"}
+                      {phoneNumber || "No configurado"}
                     </p>
                   </div>
                 </div>
@@ -127,7 +127,7 @@ const UserProfileContent = () => {
                   <div>
                     <p className="text-sm text-gray-500">Dirección</p>
                     <p className="font-semibold text-gray-800">
-                      {adress ? adress : "No configurada"}
+                      {adress || "No configurada"}
                     </p>
                   </div>
                 </div>
@@ -154,12 +154,12 @@ const UserProfileContent = () => {
               
               <button className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center gap-2">
                 <span>🔒</span>
-                Cambiar Contraseña
+                <span>Cambiar Contraseña</span>
               </button>
               
               <button className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center gap-2">
                 <span>📱</span>
-                Configurar Notificaciones
+                <span>Configurar Notificaciones</span>
               </button>
             </div>
           </div>

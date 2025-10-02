@@ -1,9 +1,7 @@
 import { errorHandler } from "../../utils/error.js";
-import vehicle from "../../models/vehicleModel.js";
-
+import Vehicle from "../../models/vehicleModel.js";
 import { uploader } from "../../utils/cloudinaryConfig.js";
 import { base64Converter } from "../../utils/multer.js";
-import Vehicle from "../../models/vehicleModel.js";
 
 // vendor add vehicle
 export const vendorAddVehicle = async (req, res, next) => {
@@ -105,6 +103,7 @@ export const vendorAddVehicle = async (req, res, next) => {
           next(errorHandler(500, "product not uploaded"));
         }
       } catch (error) {
+        console.log(error);
         next(errorHandler(500, "could not upload image to cloudinary"));
       }
     }
@@ -124,7 +123,7 @@ export const vendorEditVehicles = async (req, res, next) => {
       return next(errorHandler(401, "cannot be empty"));
     }
 
-    if (!req.body || !req.body.formData) {
+    if (!req.body?.formData) {
       return next(errorHandler(404, "Add data to edit first"));
     }
 
@@ -207,7 +206,7 @@ export const vendorEditVehicles = async (req, res, next) => {
 export const vendorDeleteVehicles = async (req, res, next) => {
   try {
     const vehicle_id = req.params.id;
-    const softDeleted = await vehicle.findOneAndUpdate(
+    const softDeleted = await Vehicle.findOneAndUpdate(
       { _id: vehicle_id },
       { isDeleted: "true" },
       { new: true }
@@ -232,7 +231,7 @@ export const showVendorVehicles = async (req, res, next) => {
 
     const { _id } = req.body;
 
-    const vendorsVehicles = await vehicle.aggregate([
+    const vendorsVehicles = await Vehicle.aggregate([
       {
         $match: {
           isDeleted: "false",

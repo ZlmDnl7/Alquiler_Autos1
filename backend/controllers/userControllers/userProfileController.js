@@ -1,5 +1,4 @@
 import User from "../../models/userModel.js";
-import { errorHandler } from "../../utils/error.js";
 
 //user profile update
 

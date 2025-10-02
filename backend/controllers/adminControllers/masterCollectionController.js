@@ -1,7 +1,6 @@
-import mongoose, { disconnect } from "mongoose";
+import mongoose from "mongoose";
 import MasterData from '../../models/masterDataModel.js'
 import { v4 as uuidv4 } from 'uuid';
-import { errorHandler } from "../../utils/error.js";
 
 const dummyData = [
 

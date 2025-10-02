@@ -9,13 +9,13 @@ const parser = new DatauriParser();
 
 export const dataUri = (req) => {
   const encodedFiles = [];
-  req.files.forEach((cur) => {
+  for (const cur of req.files) {
     //converts buffer to base64
-    let base64 = new Buffer.from(cur.buffer, "base64").toString("base64");
+    let base64 = Buffer.from(cur.buffer, "base64").toString("base64");
     //adding cloudinary supporting format to base64
     let base64CloudinaryFormat = `data:image/jpeg;base64,${base64}`;
     encodedFiles.push({ data: base64CloudinaryFormat, filename: cur.originalname });
-  });
+  }
   return encodedFiles;
 };
 
@@ -26,13 +26,13 @@ export const multerMultipleUploads = multer({ storage }).array("image", 5);
 // converting buffer to base64
 export const base64Converter = (req) => {
   const encodedFiles = [];
-  req.files.forEach((cur) => {
+  for (const cur of req.files) {
     //converts buffer to base64
-    let base64 = new Buffer.from(cur.buffer, "base64").toString("base64");
+    let base64 = Buffer.from(cur.buffer, "base64").toString("base64");
     //adding cloudinary supporting format to base64
     let base64CloudinaryFormat = `data:image/jpeg;base64,${base64}`;
     encodedFiles.push({ data: base64CloudinaryFormat, filename: cur.originalname });
-  });
+  }
   return encodedFiles;
 };
 

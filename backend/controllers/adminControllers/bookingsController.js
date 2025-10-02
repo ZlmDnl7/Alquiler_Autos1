@@ -1,5 +1,4 @@
 import Booking from "../../models/BookingModel.js";
-import Vehicle from "../../models/vehicleModel.js";
 import { errorHandler } from "../../utils/error.js";
 
 export const allBookings = async (req, res, next) => {

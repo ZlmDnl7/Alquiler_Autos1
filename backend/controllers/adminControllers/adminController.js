@@ -15,7 +15,8 @@ export const adminAuth = async (req,res,next)=> {
 
 export const adminProfiile = async (req,res,next)=> {
     try{
-
+        // TODO: Implement admin profile functionality
+        res.status(200).json({message: "Admin profile endpoint - not implemented yet"});
     }
     catch(error){
         next(error)

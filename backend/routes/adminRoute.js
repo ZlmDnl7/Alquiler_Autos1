@@ -2,14 +2,11 @@ import express from "express"
 import { adminAuth ,adminProfiile } from "../controllers/adminControllers/adminController.js"
 import { signIn } from "../controllers/authController.js"
 import { signOut  } from "../controllers/userControllers/userController.js"
-import { addProduct, deleteVehicle, editVehicle,  } from "../controllers/adminControllers/dashboardController.js"
-import { showVehicles } from "../controllers/adminControllers/dashboardController.js"
+import { addProduct, deleteVehicle, editVehicle, showVehicles } from "../controllers/adminControllers/dashboardController.js"
 import { multerUploads } from "../utils/multer.js"
-import { insertDummyData } from "../controllers/adminControllers/masterCollectionController.js"
-import { getCarModelData } from "../controllers/adminControllers/masterCollectionController.js"
+import { insertDummyData, getCarModelData } from "../controllers/adminControllers/masterCollectionController.js"
 import { approveVendorVehicleRequest, fetchVendorVehilceRequests, rejectVendorVehicleRequest } from "../controllers/adminControllers/vendorVehilceRequests.js"
 import { allBookings, changeStatus } from "../controllers/adminControllers/bookingsController.js"
-import { verifyToken } from "../utils/verifyUser.js"
 import { getAllUsers, getDashboardStats } from '../controllers/adminController.js';
 
 

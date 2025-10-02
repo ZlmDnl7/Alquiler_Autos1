@@ -40,7 +40,6 @@ export const products = [
 
 export const HeroParallax = () => {
   const firstRow = products.slice(0, 1);
-  const secondRow = products.slice(1, 2);
 
   const ref = useRef(null)
   const { scrollYProgress } = useScroll({
@@ -52,27 +51,21 @@ export const HeroParallax = () => {
 
   const isMobile = useMediaQuery({ maxWidth: 500 });
   const isTablet = useMediaQuery({ minWidth: 510, maxWidth: 900 });
-  const isDesktop = useMediaQuery({ minWidth: 901, maxWidth:1400 });
 
   const translateXReverseMobile = useTransform(scrollYProgress, [0, .3], [1000, 70]);
   const translateXTablet = useTransform(scrollYProgress, [0, .4], [1000, 300]);
   const translateXReverseDesktop = useTransform(scrollYProgress, [0, .4], [1000,90])
 
-  const translateX = useSpring(
-    isMobile
-    ? translateXReverseMobile
-    : isTablet
-    ? translateXTablet
-    : translateXReverseDesktop,
-    springConfig
-  );
-  const translateXReverse = useSpring(
-    useTransform(scrollYProgress, [0.7, 1], [250, -1000]),
-    springConfig
-  );
+  const getTranslateX = () => {
+    if (isMobile) return translateXReverseMobile;
+    if (isTablet) return translateXTablet;
+    return translateXReverseDesktop;
+  };
+
+  const translateX = useSpring(getTranslateX(), springConfig);
  
   const rotateX = useSpring(
-    useTransform(scrollYProgress, [0, 0.150], [15, 0]),
+    useTransform(scrollYProgress, [0, 0.15], [15, 0]),
     springConfig
   );
   const opacity = useSpring(
@@ -80,11 +73,7 @@ export const HeroParallax = () => {
     springConfig
   );
   const rotateZ = useSpring(
-    useTransform(scrollYProgress, [0, 0.350], [20, 0]),
-    springConfig
-  );
-  const rotateZM = useSpring(
-    useTransform(scrollYProgress, [0.7, 1], [0, -20]),
+    useTransform(scrollYProgress, [0, 0.35], [20, 0]),
     springConfig
   );
   const translateY = useSpring(
@@ -112,7 +101,7 @@ export const HeroParallax = () => {
         >
           <motion.div className="flex flex-row-reverse   mb-[200px] ">
             {firstRow.map((product,index) => (
-              <div key={index} className="flex flex-col items-center lg:flex-row bg-gradient-to-br from-slate-900 to-green-500 max-w-full md:max-w-[800px] lg:max-w-[1300px] md:min-h-800px lg:min-h-[800px] gap-5 rounded-lg py-[50px] px-[50px] md:py-[100px] md:px-[100px] mx-auto  ">
+              <div key={product.link || index} className="flex flex-col items-center lg:flex-row bg-gradient-to-br from-slate-900 to-green-500 max-w-full md:max-w-[800px] lg:max-w-[1300px] md:min-h-800px lg:min-h-[800px] gap-5 rounded-lg py-[50px] px-[50px] md:py-[100px] md:px-[100px] mx-auto  ">
                 <div>
                   <h1 className="max-w-[250px] md:max-w-[600px] lg:max-w-[700px] lg:min-w-[500px] text-lg md:text-[24px]   p-1 md:p-4 text-justify lg:text-left  from-black  via-gray-700 to-white  bg-gradient-to-t bg-clip-text text-transparent  capitalize font-bold parallax1H1 my-[40px] leading-[2rem] md:leading-[3rem] ">
                   ¡Encuentra el auto perfecto a precios imbatibles! Ya sea para una escapada de fin de semana o un alquiler a largo plazo, te cubrimos con planes flexibles y sin cargos ocultos. ¡Reserva ahora y recorre la carretera con estilo!

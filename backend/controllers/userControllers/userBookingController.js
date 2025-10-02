@@ -21,7 +21,6 @@ export const BookCar = async (req, res, next) => {
       pickup_location,
       dropoff_location,
       pickup_district,
-      dropoff_district,
       razorpayPaymentId,
       razorpayOrderId,
     } = req.body;
@@ -144,7 +143,7 @@ export const getVehiclesWithoutBooking = async (req, res, next) => {
     }
 
     // If there is no next middleware after this one, send the response
-    if (!req.route || !req.route.stack || req.route.stack.length === 1) {
+    if (!req.route?.stack || req.route.stack.length === 1) {
       console.log("hello");
       console.log({ success: "true", data: availableVehicles });
       return res.status(200).json({
@@ -179,6 +178,7 @@ export const showAllVariants = async (req, res, next) => {
 
     res.status(200).json(allVariants);
   } catch (error) {
+    console.log(error);
     next(errorHandler(500, "internal error in showAllVariants"));
   }
 };
@@ -196,12 +196,12 @@ export const showOneofkind = async (req, res, next) => {
       return;
     }
 
-    actionResult[0].forEach((cur) => {
+    for (const cur of actionResult[0]) {
       if (!modelsMap[cur.model]) {
         modelsMap[cur.model] = true;
         singleVehicleofModel.push(cur);
       }
-    });
+    }
 
     if (!singleVehicleofModel) {
       next(errorHandler(404, "no vehicles available"));
@@ -228,7 +228,7 @@ export const filterVehicles = async (req, res, next) => {
     }
     const generateMatchStage = (data) => {
       const carTypes = [];
-      data.forEach((cur) => {
+      for (const cur of data) {
         if (cur.type === "car_type") {
           // Extract the first key of the object and push it into 'cartypes' array
           const firstKey = Object.keys(cur).find((key) => key !== "type");
@@ -236,21 +236,21 @@ export const filterVehicles = async (req, res, next) => {
             carTypes.push(firstKey);
           }
         }
-      });
+      }
 
       const transmitions = [];
-      data.forEach((cur) => {
+      for (const cur of data) {
         // If the current element has type equal to 'transmition'
         if (cur.type === "transmition") {
           // Iterate through each key of the current element
-          Object.keys(cur).forEach((key) => {
+          for (const key of Object.keys(cur)) {
             // Exclude the 'type' key and push only keys with truthy values into 'transmitions' array
             if (key !== "type" && cur[key]) {
               transmitions.push(key);
             }
-          });
+          }
         }
-      });
+      }
 
       return {
         $match: {
@@ -303,7 +303,7 @@ export const findBookingsOfUser = async (req, res, next) => {
       return;
     }
     
-    const convertedUserId = new mongoose.Types.ObjectId(userId);
+    const convertedUserId = mongoose.Types.ObjectId.createFromHexString(userId);
     console.log("🔄 User ID convertido:", convertedUserId);
 
     console.log("🔍 Buscando reservas en la base de datos...");
@@ -354,7 +354,7 @@ export const latestbookings = async (req, res, next) => {
   try {
     const { user_id } = req.body;
     console.log(user_id);
-    const convertedUserId = new mongoose.Types.ObjectId(user_id);
+    const convertedUserId = mongoose.Types.ObjectId.createFromHexString(user_id);
 
     const bookings = await Booking.aggregate([
       {
@@ -416,7 +416,7 @@ export const sendBookingDetailsEamil = (req, res, next) => {
     console.log("hi");
     console.log(req.body);
 
-    var transporter = nodemailer.createTransport({
+    const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
         user: process.env.EMAIL_HOST,
@@ -466,7 +466,7 @@ export const sendBookingDetailsEamil = (req, res, next) => {
       `;
     };
 
-    var mailOptions = {
+    const mailOptions = {
       from: process.env.EMAIL_HOST,
       to: toEmail,
       subject: "rentaride.shop booking details",
@@ -508,7 +508,7 @@ export const findBookingsForVendor = async (req, res, next) => {
       return;
     }
     
-    const convertedVendorId = new mongoose.Types.ObjectId(vendorId);
+    const convertedVendorId = mongoose.Types.ObjectId.createFromHexString(vendorId);
     console.log("🔄 Vendor ID convertido:", convertedVendorId);
 
     console.log("🔍 Buscando reservas de los autos del vendedor...");

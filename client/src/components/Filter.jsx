@@ -53,7 +53,7 @@ const Filter = () => {
     // Transform the form data object into an array of objects with the desired structure
     transformedData = Object.entries(data)
       // eslint-disable-next-line no-unused-vars
-      .filter(([key, value]) => value == true)
+      .filter(([key, value]) => value === true)
       .map(([key, value]) => ({ 
         [key]: valueMapping[key] || value, 
         type: typeMapping[key] 
@@ -124,7 +124,7 @@ const Filter = () => {
           {/* <!-- Filters  form --> */}
 
          
-          <div className={` border-t border-gray-200 dropdown-content ${filterOpen ? 'opacity-100' : 'opacity-100'} `}>
+          <div className="border-t border-gray-200 dropdown-content opacity-100">
             <h3 className="sr-only">Categories</h3>
 
             <div className="border-t border-gray-200 px-4 py-6">

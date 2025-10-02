@@ -28,8 +28,8 @@ function Header() {
         <ul className="flex list-none">
           {navLinks.map((navlink, index) => (
             <li
-              key={index}
-              className={`${index != navLinks.length - 1 ? "mx-4" : "mx-0"}`}
+              key={navlink.path}
+              className={`${index === navLinks.length - 1 ? "mx-0" : "mx-4"}`}
             >
               <Link
                 to={navlink.path}
@@ -84,7 +84,7 @@ function Header() {
             <div>{nav ? <MdMenuOpen /> : <RxHamburgerMenu />}</div>
           </button>
           <Drawer
-            destroyOnClose={true}
+            destroyOnClose
             onClose={() => setNav(false)}
             open={nav}
           >
@@ -92,7 +92,7 @@ function Header() {
               {navLinks.map((navlink, index) => (
             
                   <Link
-                    key={index}
+                    key={navlink.path}
                     to={navlink.path}
                     className="text-[26px]"
                     onClick={() => setNav(false)}

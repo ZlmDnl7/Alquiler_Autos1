@@ -48,9 +48,14 @@ export const signUp = async (req, res, next) => {
     // Manejar errores específicos de MongoDB
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0];
-      const message = field === 'email' ? 'El email ya está registrado' : 
-                     field === 'username' ? 'El nombre de usuario ya está en uso' :
-                     'Error de duplicado en el sistema';
+      let message;
+      if (field === 'email') {
+        message = 'El email ya está registrado';
+      } else if (field === 'username') {
+        message = 'El nombre de usuario ya está en uso';
+      } else {
+        message = 'Error de duplicado en el sistema';
+      }
       return next(errorHandler(400, message));
     }
     
@@ -60,8 +65,6 @@ export const signUp = async (req, res, next) => {
 
 //refreshTokens
 export const refreshToken = async (req, res, next) => {
-  // const refreshToken = req.cookies.refresh_token;
-
   if (!req.headers.authorization) {
     return next(errorHandler(403, "bad request no header provided"));
   }
@@ -73,7 +76,6 @@ export const refreshToken = async (req, res, next) => {
   console.log(accessToken);
 
   if (!refreshToken) {
-    // res.clearCookie("access_token", "refresh_token");
     return next(errorHandler(401, "You are not authenticated"));
   }
 
@@ -83,7 +85,6 @@ export const refreshToken = async (req, res, next) => {
 
     if (!user) return next(errorHandler(403, "Invalid refresh token"));
     if (user.refreshToken !== refreshToken) {
-      // res.clearCookie("access_token", "refresh_token");
       return next(errorHandler(403, "Invalid refresh token"));
     }
 
@@ -117,6 +118,7 @@ export const refreshToken = async (req, res, next) => {
       .status(200)
       .json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
   } catch (error) {
+    console.log(error);
     next(errorHandler(500, "error in refreshToken controller in server"));
   }
 };
@@ -144,7 +146,7 @@ export const signIn = async (req, res, next) => {
     ); //store the refresh token in db
 
     //separating password from the updatedData
-    const { password: hashedPassword, isAdmin, ...rest } = updatedData._doc;
+    const { password: _, isAdmin, ...rest } = updatedData._doc;
 
     //not sending users hashed password to frontend
     const responsePayload = {
@@ -193,7 +195,7 @@ export const google = async (req, res, next) => {
       return next(errorHandler(409, "email already in use as a vendor"));
     }
     if (user) {
-      const { password: hashedPassword, ...rest } = user;
+      const { password: _, ...rest } = user;
       const token = Jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN);
 
       res
@@ -226,7 +228,7 @@ export const google = async (req, res, next) => {
       const userObject = savedUser.toObject();
 
       const token = Jwt.sign({ id: newUser._id }, process.env.ACCESS_TOKEN);
-      const { password: hashedPassword2, ...rest } = userObject;
+      const { password: _, ...rest } = userObject;
       res
         .cookie("access_token", token, {
           httpOnly: true,

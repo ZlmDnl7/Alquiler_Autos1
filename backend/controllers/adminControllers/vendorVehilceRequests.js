@@ -79,6 +79,7 @@ export const rejectVendorVehicleRequest = async (req, res, next) => {
 
     res.status(200).json(regectedVendor);
   } catch (error) {
+    console.log(error);
     next(errorHandler(500, "error while Rejecting"));
   }
 };

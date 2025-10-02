@@ -2,7 +2,7 @@ import express from "express";
 
 import { verifyToken } from "../utils/verifyUser.js";
 import { updateUser ,deleteUser , signOut } from "../controllers/userControllers/userController.js";
-import { checkAvailability, listAllVehicles, searchCar, showVehicleDetails } from "../controllers/userControllers/userAllVehiclesController.js";
+import { listAllVehicles, showVehicleDetails } from "../controllers/userControllers/userAllVehiclesController.js";
 import { editUserProfile } from "../controllers/userControllers/userProfileController.js";
 import { BookCar, razorpayOrder, getVehiclesWithoutBooking, filterVehicles, showOneofkind, showAllVariants, findBookingsOfUser, sendBookingDetailsEamil, latestbookings, findBookingsForVendor, findAllBookingsForAdmin, updateExistingStatuses } from "../controllers/userControllers/userBookingController.js";
 

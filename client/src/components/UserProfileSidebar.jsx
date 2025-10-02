@@ -87,7 +87,7 @@ const UserProfileSidebar = () => {
           </div>
           <div className="mt-10">
             {links.map((cur, idx) => (
-              <div key={idx}>
+              <div key={cur.title || idx}>
                 {cur.links.map((link) => (
                   <NavLink
                     to={`/profile/${link.name}`}

@@ -100,11 +100,10 @@ export const checkAvailability = async (req, res, next) => {
 //search car filter in homepage
 export const searchCar = async (req, res, next) => {
   try {
-    if (req && req.body) {
+    if (req?.body) {
       const {
         pickup_district,
         pickup_location,
-        dropoff_location,
         pickuptime,
         dropofftime,
       } = req.body;
@@ -191,6 +190,7 @@ export const searchCar = async (req, res, next) => {
       res.status(400).json({ message: "please provide all the details" });
     }
   } catch (error) {
+    console.log(error);
     next(errorHandler(500, "something went wrong while Searching car"));
   }
 };

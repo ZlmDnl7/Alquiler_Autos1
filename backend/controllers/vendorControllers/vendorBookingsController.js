@@ -2,7 +2,7 @@ import Booking from '../../models/BookingModel.js'
 
 export const vendorBookings = async (req, res, next) => {
     try {
-        const {vendorVehicles}  = req.body
+        // const {vendorVehicles}  = req.body // TODO: Use vendorVehicles for filtering
         const bookings = await Booking.aggregate([
           {
             $lookup: {
