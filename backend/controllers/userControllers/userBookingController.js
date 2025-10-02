@@ -226,41 +226,38 @@ export const filterVehicles = async (req, res, next) => {
     if (!transformedData) {
       next(errorHandler(401, "select filter option first"));
     }
-    const generateMatchStage = (data) => {
-      const carTypes = [];
-      for (const cur of data) {
-        if (cur.type === "car_type") {
-          // Extract the first key of the object and push it into 'cartypes' array
-          const firstKey = Object.keys(cur).find((key) => key !== "type");
-          if (firstKey) {
-            carTypes.push(firstKey);
-          }
-        }
-      }
+    // Función auxiliar para extraer car types
+    const extractCarTypes = (data) => {
+      return data
+        .filter(item => item.type === "car_type")
+        .map(item => Object.keys(item).find(key => key !== "type"))
+        .filter(Boolean);
+    };
 
-      const transmitions = [];
-      for (const cur of data) {
-        // If the current element has type equal to 'transmition'
-        if (cur.type === "transmition") {
-          // Iterate through each key of the current element
-          for (const key of Object.keys(cur)) {
-            // Exclude the 'type' key and push only keys with truthy values into 'transmitions' array
-            if (key !== "type" && cur[key]) {
-              transmitions.push(key);
-            }
-          }
-        }
+    // Función auxiliar para extraer transmitions
+    const extractTransmitions = (data) => {
+      return data
+        .filter(item => item.type === "transmition")
+        .flatMap(item => 
+          Object.keys(item)
+            .filter(key => key !== "type" && item[key])
+        );
+    };
+
+    const generateMatchStage = (data) => {
+      const carTypes = extractCarTypes(data);
+      const transmitions = extractTransmitions(data);
+
+      const conditions = [];
+      if (carTypes.length > 0) {
+        conditions.push({ car_type: { $in: carTypes } });
+      }
+      if (transmitions.length > 0) {
+        conditions.push({ transmition: { $in: transmitions } });
       }
 
       return {
-        $match: {
-          $and: [
-            carTypes.length > 0 ? { car_type: { $in: carTypes } } : null,
-            transmitions.length > 0
-              ? { transmition: { $in: transmitions } }
-              : null,
-          ].filter((condition) => condition !== null), // Remove null conditions
-        },
+        $match: conditions.length > 0 ? { $and: conditions } : {}
       };
     };
 

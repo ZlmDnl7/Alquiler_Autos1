@@ -2,8 +2,10 @@ import Booking from '../../models/BookingModel.js'
 
 export const vendorBookings = async (req, res, next) => {
     try {
-        // const {vendorVehicles}  = req.body // TODO: Use vendorVehicles for filtering
-        const bookings = await Booking.aggregate([
+        const { vendorVehicles } = req.body || {};
+        
+        // Construir pipeline de agregación
+        const pipeline = [
           {
             $lookup: {
               from: "vehicles",
@@ -17,7 +19,18 @@ export const vendorBookings = async (req, res, next) => {
               path: "$vehicleDetails",
             },
           },
-        ]);
+        ];
+
+        // Agregar filtro por vehículos del vendor si se proporciona
+        if (vendorVehicles && Array.isArray(vendorVehicles) && vendorVehicles.length > 0) {
+          pipeline.push({
+            $match: {
+              "vehicleDetails._id": { $in: vendorVehicles }
+            }
+          });
+        }
+
+        const bookings = await Booking.aggregate(pipeline);
     
         if (!bookings) {
           next(errorHandler(404, "no bookings found"));

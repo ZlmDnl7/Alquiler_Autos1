@@ -30,18 +30,13 @@ App.use(cookieParser());
 dotenv.config();
 const port = process.env.PORT || 5000;
 
-// Función para conectar a MongoDB
-async function connectToDatabase() {
-  try {
-    await mongoose.connect(process.env.mongo_uri);
-    console.log("connected");
-  } catch (error) {
-    console.error(error);
-  }
+// Conectar a MongoDB usando top-level await
+try {
+  await mongoose.connect(process.env.mongo_uri);
+  console.log("connected");
+} catch (error) {
+  console.error(error);
 }
-
-// Conectar a MongoDB
-connectToDatabase();
 
 // Configurar Cloudinary solo para rutas que lo necesiten
 App.use('/api/admin/*', cloudinaryConfig);

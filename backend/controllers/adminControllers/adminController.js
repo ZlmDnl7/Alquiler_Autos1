@@ -15,8 +15,19 @@ export const adminAuth = async (req,res,next)=> {
 
 export const adminProfiile = async (req,res,next)=> {
     try{
-        // TODO: Implement admin profile functionality
-        res.status(200).json({message: "Admin profile endpoint - not implemented yet"});
+        // Obtener información del perfil del admin
+        const adminProfile = {
+            id: req.user.id,
+            username: req.user.username,
+            email: req.user.email,
+            isAdmin: req.user.isAdmin,
+            createdAt: req.user.createdAt
+        };
+        
+        res.status(200).json({
+            message: "Admin profile retrieved successfully",
+            profile: adminProfile
+        });
     }
     catch(error){
         next(error)

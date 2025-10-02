@@ -53,6 +53,7 @@ export const addProduct = async (req, res, next) => {
             console.log(error, {
               message: "error while uploading to cloudinary",
             });
+            next(errorHandler(500, "could not upload image to cloudinary"));
           }
         })
       );
@@ -100,10 +101,12 @@ export const addProduct = async (req, res, next) => {
         next(errorHandler(500, "product not uploaded"));
       }
     } catch (error) {
+      console.log(error);
       next(errorHandler(500, "could not upload image to cloudinary"));
     }
   } catch (error) {
-    next(errorHandler(400, "vehicle failed to add "), console.log(error));
+    console.log(error);
+    next(errorHandler(400, "vehicle failed to add"));
   }
 };
 

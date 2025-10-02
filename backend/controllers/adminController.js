@@ -8,6 +8,7 @@ export const getAllUsers = async (req, res, next) => {
     
     res.status(200).json(users);
   } catch (error) {
+    console.log(error);
     next(errorHandler(500, "Error al obtener usuarios"));
   }
 };
@@ -34,6 +35,7 @@ export const getDashboardStats = async (req, res, next) => {
       recentUsers
     });
   } catch (error) {
+    console.log(error);
     next(errorHandler(500, "Error al obtener estadísticas"));
   }
 };

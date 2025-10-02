@@ -23,17 +23,7 @@ export const dataUri = (req) => {
 //configureing multer to upload multiple files
 export const multerMultipleUploads = multer({ storage }).array("image", 5);
 
-// converting buffer to base64
-export const base64Converter = (req) => {
-  const encodedFiles = [];
-  for (const cur of req.files) {
-    //converts buffer to base64
-    let base64 = Buffer.from(cur.buffer, "base64").toString("base64");
-    //adding cloudinary supporting format to base64
-    let base64CloudinaryFormat = `data:image/jpeg;base64,${base64}`;
-    encodedFiles.push({ data: base64CloudinaryFormat, filename: cur.originalname });
-  }
-  return encodedFiles;
-};
+// converting buffer to base64 - reusing dataUri function
+export const base64Converter = dataUri;
 
 

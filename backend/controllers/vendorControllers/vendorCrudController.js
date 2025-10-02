@@ -64,7 +64,7 @@ export const vendorAddVehicle = async (req, res, next) => {
         );
         try {
           if (uploadedImages.length > 0) {
-            const addVehicle = new vehicle({
+            const addVehicle = new Vehicle({
               registeration_number,
               company,
               name,
