@@ -239,7 +239,7 @@ export const showVendorVehicles = async (req, res, next) => {
 
     const { _id } = req.body;
     
-    console.log("🔍 showVendorVehicles - Vendor ID recibido:", _id);
+    // ID recibido del vendedor validado más abajo
     
     // Validar que _id sea un ObjectId válido
     if (!_id || !mongoose.Types.ObjectId.isValid(_id)) {
@@ -248,41 +248,28 @@ export const showVendorVehicles = async (req, res, next) => {
 
     // Primero, verificar si el vendedor existe
     const vendor = await User.findById(_id);
-    console.log("👤 Vendedor encontrado:", vendor ? "Sí" : "No");
     
     // Buscar TODOS los vehículos para debug
     const allVehicles = await Vehicle.find({});
-    console.log("🚗 Total de vehículos en la BD:", allVehicles.length);
     
     // Mostrar algunos vehículos para debug
-    if (allVehicles.length > 0) {
-      console.log("📋 Primeros 3 vehículos:", allVehicles.slice(0, 3).map(v => ({
-        id: v._id,
-        name: v.name,
-        addedBy: v.addedBy,
-        isDeleted: v.isDeleted,
-        isAdminAdded: v.isAdminAdded
-      })));
-    }
+    // (logs de diagnóstico removidos)
 
-    // Usar find() en lugar de aggregate() para simplificar
+    // Usar find() con ObjectId saneado para evitar usar datos de usuario directamente
     const vendorsVehicles = await Vehicle.find({
       isDeleted: "false",
       isAdminAdded: false,
-      addedBy: _id, // Usar el ID directamente como string
+      addedBy: mongoose.Types.ObjectId.createFromHexString(_id),
     });
-
-    console.log("🔍 Vehículos del vendedor encontrados:", vendorsVehicles.length);
 
     if (!vendorsVehicles || vendorsVehicles.length === 0) {
       // En lugar de lanzar error, devolver array vacío
-      console.log("⚠️ No se encontraron vehículos para este vendedor");
       return res.status(200).json([]);
     }
 
     res.status(200).json(vendorsVehicles);
   } catch (error) {
-    console.error("💥 Error en showVendorVehicles:", error);
+    console.error("Error en showVendorVehicles:", error);
     next(errorHandler(500, "Error in showVendorVehicles"));
   }
 };
