@@ -330,7 +330,8 @@ const CheckoutPage = () => {
                 onClick={() => navigate("/")}
                 className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
               >
-                <span>🏠</span> Ir al Inicio
+                <span>🏠</span>
+                Ir al Inicio
               </button>
               
               <button
@@ -340,14 +341,16 @@ const CheckoutPage = () => {
                 }}
                 className="px-8 py-3 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
               >
-                <span>🔄</span> Hacer Otra Reserva
+                <span>🔄</span>
+                Hacer Otra Reserva
               </button>
             </div>
             
             {/* Información adicional */}
             <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-200">
               <p className="text-sm text-blue-800">
-                <span className="font-semibold">💡 Nota:</span> Recibirás un email de confirmación con todos los detalles de tu reserva.
+                <span className="font-semibold">💡 Nota:</span>
+                Recibirás un email de confirmación con todos los detalles de tu reserva.
               </p>
             </div>
           </div>
@@ -465,11 +468,13 @@ const CheckoutPage = () => {
                       <ul className="text-xs text-amber-700 space-y-2">
                         <li className="flex items-center gap-2">
                           <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
-                          <strong>📍 Puntos de Recogida/Devolución:</strong> Dónde quieres que te entreguen y recojan el auto
+                          <strong>📍 Puntos de Recogida/Devolución:</strong>
+                          Dónde quieres que te entreguen y recojan el auto
                         </li>
                         <li className="flex items-center gap-2">
                           <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
-                          <strong>📱 Datos de Contacto:</strong> Tu email y teléfono para confirmar la reserva
+                          <strong>📱 Datos de Contacto:</strong>
+                          Tu email y teléfono para confirmar la reserva
                         </li>
                       </ul>
                     </div>
