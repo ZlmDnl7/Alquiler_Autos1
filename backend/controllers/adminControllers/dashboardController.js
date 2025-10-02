@@ -50,9 +50,6 @@ export const addProduct = async (req, res, next) => {
             });
             uploadedImages.push(result.secure_url);
           } catch (error) {
-            console.log(error, {
-              message: "error while uploading to cloudinary",
-            });
             next(errorHandler(500, "could not upload image to cloudinary"));
           }
         })
@@ -97,15 +94,12 @@ export const addProduct = async (req, res, next) => {
           return next(errorHandler(409, "product already exists"));
         }
 
-        console.log(error);
         next(errorHandler(500, "product not uploaded"));
       }
     } catch (error) {
-      console.log(error);
       next(errorHandler(500, "could not upload image to cloudinary"));
     }
   } catch (error) {
-    console.log(error);
     next(errorHandler(400, "vehicle failed to add"));
   }
 };
@@ -121,7 +115,6 @@ export const showVehicles = async (req, res, next) => {
 
     res.status(200).json(vehicles);
   } catch (error) {
-    console.log(error);
     next(errorHandler(500, "something went wrong"));
   }
 };
@@ -143,6 +136,7 @@ export const deleteVehicle = async (req, res, next) => {
     }
     res.status(200).json({ message: "deleted successfully" });
   } catch (error) {
+    console.error("Error deleting vehicle:", error);
     next(errorHandler(500, "something went wrong"));
   }
 };
@@ -229,7 +223,6 @@ export const editVehicle = async (req, res, next) => {
       }
     }
   } catch (error) {
-    console.log(error);
     next(errorHandler(500, "something went wrong"));
   }
 };

@@ -126,7 +126,13 @@ export const refreshToken = async (req, res, next) => {
 export const signIn = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    const validUser = await User.findOne({ email });
+    // Sanitizar email para prevenir NoSQL injection
+    const sanitizedEmail = email?.toString().trim();
+    if (!sanitizedEmail || !password) {
+      return next(errorHandler(400, "Email and password are required"));
+    }
+    
+    const validUser = await User.findOne({ email: sanitizedEmail });
     if (!validUser) return next(errorHandler(404, "user not found"));
     const validPassword = bcryptjs.compareSync(password, validUser.password);
     if (!validPassword) return next(errorHandler(401, "wrong credentials"));
@@ -190,7 +196,13 @@ export const signIn = async (req, res, next) => {
 
 export const google = async (req, res, next) => {
   try {
-    const user = await User.findOne({ email: req.body.email }).lean();
+    // Sanitizar email para prevenir NoSQL injection
+    const email = req.body.email?.toString().trim();
+    if (!email) {
+      return next(errorHandler(400, "Email is required"));
+    }
+    
+    const user = await User.findOne({ email }).lean();
     if (user && !user.isUser) {
       return next(errorHandler(409, "email already in use as a vendor"));
     }

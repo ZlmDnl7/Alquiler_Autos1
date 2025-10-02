@@ -24,7 +24,6 @@ const Modal = ({
   className = "",
 }) => {
   const modalRef = useRef();
-  const [mouseDownEv, setMouseDownEv] = useState(null);
 
   useEffect(() => {
     if (!isOpen || !isDismissible) return;
@@ -51,21 +50,6 @@ const Modal = ({
     };
   }, [isOpen, onClose, isDismissible]);
 
-  const handleMouseDown = (e) => {
-    setMouseDownEv({ screenX: e.screenX, screenY: e.screenY });
-  };
-
-  const checkOutsideAndCloseModal = (e) => {
-    if (!isDismissible) return;
-    if (
-      modalRef.current.contains(e.target) ||
-      Math.abs(mouseDownEv.screenX - e.screenX) > 15 ||
-      Math.abs(mouseDownEv.screenY - e.screenY) > 15
-    )
-      return;
-    onClose();
-    setMouseDownEv(null);
-  };
 
   const getEnterAnimation = (animEnter) => {
     return {

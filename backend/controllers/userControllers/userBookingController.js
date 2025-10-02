@@ -104,8 +104,13 @@ export const razorpayOrder = async (req, res, next) => {
 export const getVehiclesWithoutBooking = async (req, res, next) => {
   try {
     const { pickUpDistrict, pickUpLocation, pickupDate, dropOffDate, model } = req.body;
+    
+    // Sanitizar datos de entrada para prevenir NoSQL injection
+    const sanitizedPickUpDistrict = pickUpDistrict?.toString().trim();
+    const sanitizedPickUpLocation = pickUpLocation?.toString().trim();
+    const sanitizedModel = model?.toString().trim();
 
-    if (!pickUpDistrict || !pickUpLocation)
+    if (!sanitizedPickUpDistrict || !sanitizedPickUpLocation)
       return next(errorHandler(409, "pickup District and location needed"));
 
     if (!pickupDate || !dropOffDate)

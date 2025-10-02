@@ -9,11 +9,19 @@ const expireDate = new Date(Date.now() + 3600000);
 export const vendorSignup = async (req, res, next) => {
   const { username, email, password } = req.body;
   try {
+    // Sanitizar datos de entrada para prevenir NoSQL injection
+    const sanitizedUsername = username?.toString().trim();
+    const sanitizedEmail = email?.toString().trim();
+    
+    if (!sanitizedUsername || !sanitizedEmail || !password) {
+      return next(errorHandler(400, "Username, email and password are required"));
+    }
+    
     const hashedPassword = bcryptjs.hashSync(password, 10);
     const user = await User.create({
-      username,
+      username: sanitizedUsername,
       password: hashedPassword,
-      email,
+      email: sanitizedEmail,
       isVendor: true,
     });
     await user.save();
@@ -26,7 +34,13 @@ export const vendorSignup = async (req, res, next) => {
 export const vendorSignin = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    const validVendor = await User.findOne({ email }).lean();
+    // Sanitizar email para prevenir NoSQL injection
+    const sanitizedEmail = email?.toString().trim();
+    if (!sanitizedEmail || !password) {
+      return next(errorHandler(400, "Email and password are required"));
+    }
+    
+    const validVendor = await User.findOne({ email: sanitizedEmail }).lean();
     if (!validVendor || !validVendor.isVendor) {
       return next(errorHandler(404,"user not found"))
     }
@@ -36,7 +50,7 @@ export const vendorSignin = async (req, res, next) => {
     }
    
     const token = Jwt.sign({ id: validVendor._id }, process.env.ACCESS_TOKEN);
-    const { password, ...rest } = validVendor;
+    const { password: _, ...rest } = validVendor;
     const thirtyDaysInMilliseconds = 30 * 24 * 60 * 60 * 1000;
 
     res
