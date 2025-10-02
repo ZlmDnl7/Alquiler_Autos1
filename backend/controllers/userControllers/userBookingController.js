@@ -624,30 +624,27 @@ export const updateExistingStatuses = async (req, res, next) => {
   try {
     console.log("🔄 Actualizando estados existentes...");
     
-    // Actualizar estados antiguos a nuevos usando $switch para evitar problemas de "then"
-    const result = await Booking.updateMany(
-      { status: { $in: ["notBooked", "booked", "onTrip", "notPicked", "canceled", "overDue", "tripCompleted"] } },
-      [
-        {
-          $set: {
-            status: {
-              $switch: {
-                branches: [
-                  { case: { $eq: ["$status", "notBooked"] }, then: "noReservado" },
-                  { case: { $eq: ["$status", "booked"] }, then: "reservado" },
-                  { case: { $eq: ["$status", "onTrip"] }, then: "enViaje" },
-                  { case: { $eq: ["$status", "notPicked"] }, then: "noRecogido" },
-                  { case: { $eq: ["$status", "canceled"] }, then: "cancelado" },
-                  { case: { $eq: ["$status", "overDue"] }, then: "vencido" },
-                  { case: { $eq: ["$status", "tripCompleted"] }, then: "viajeCompletado" }
-                ],
-                default: "$status"
-              }
-            }
-          }
-        }
-      ]
-    );
+    // Actualizar estados antiguos a nuevos usando múltiples operaciones para evitar problemas de "then"
+    const statusMappings = [
+      { oldStatus: "notBooked", newStatus: "noReservado" },
+      { oldStatus: "booked", newStatus: "reservado" },
+      { oldStatus: "onTrip", newStatus: "enViaje" },
+      { oldStatus: "notPicked", newStatus: "noRecogido" },
+      { oldStatus: "canceled", newStatus: "cancelado" },
+      { oldStatus: "overDue", newStatus: "vencido" },
+      { oldStatus: "tripCompleted", newStatus: "viajeCompletado" }
+    ];
+
+    let totalUpdated = 0;
+    for (const mapping of statusMappings) {
+      const result = await Booking.updateMany(
+        { status: mapping.oldStatus },
+        { $set: { status: mapping.newStatus } }
+      );
+      totalUpdated += result.modifiedCount;
+    }
+
+    const result = { modifiedCount: totalUpdated };
     
     console.log("✅ Estados actualizados:", result);
     res.status(200).json({ message: "Estados actualizados exitosamente", result });

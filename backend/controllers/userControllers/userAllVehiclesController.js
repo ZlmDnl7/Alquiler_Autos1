@@ -151,17 +151,7 @@ export const searchCar = async (req, res, next) => {
           {
             $project: {
               _id: 1,
-              vehicles: {
-                $switch: {
-                  branches: [
-                    {
-                      case: { $gt: [{ $size: "$vehicles" }, 1] },
-                      then: { $arrayElemAt: ["$vehicles", 0] }
-                    }
-                  ],
-                  default: "$vehicles"
-                }
-              },
+              vehicles: "$vehicles",
             },
           },
           {
@@ -170,8 +160,14 @@ export const searchCar = async (req, res, next) => {
             },
           },
           {
+            $group: {
+              _id: "$_id",
+              firstVehicle: { $first: "$vehicles" }
+            }
+          },
+          {
             $replaceRoot: {
-              newRoot: "$vehicles",
+              newRoot: "$firstVehicle",
             },
           },
         ]);
