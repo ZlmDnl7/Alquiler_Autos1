@@ -11,64 +11,34 @@ import { jest, describe, test, expect, beforeEach, beforeAll } from '@jest/globa
 import mongoose from 'mongoose';
 import bcryptjs from 'bcryptjs';
 
-// Mocks de modelos y utilidades
-jest.mock('./models/vehicleModel.js', () => ({
+// Mock de servicio de disponibilidad (antes de importar controladores)
+jest.mock('./services/checkAvailableVehicle.js', () => ({
   __esModule: true,
-  default: {
-    findByIdAndUpdate: jest.fn(),
-    findOneAndUpdate: jest.fn(),
-    find: jest.fn(),
-    save: jest.fn(),
-    aggregate: jest.fn(),
-  },
+  availableAtDate: jest.fn(),
 }));
 
-jest.mock('./models/userModel.js', () => ({
-  __esModule: true,
-  default: {
-    findById: jest.fn(),
-    findOne: jest.fn(),
-    create: jest.fn(),
-    findByIdAndUpdate: jest.fn(),
-    updateOne: jest.fn(),
-  },
-}));
+// Mock del modelo Booking (constructor + métodos estáticos)
+jest.mock('./models/BookingModel.js', () => {
+  const saveMock = jest.fn();
+  const BookingMock = jest.fn().mockImplementation(() => ({ save: saveMock }));
+  BookingMock.updateMany = jest.fn();
+  BookingMock.aggregate = jest.fn();
+  BookingMock.find = jest.fn();
+  BookingMock.__saveMock = saveMock;
+  return { __esModule: true, default: BookingMock };
+});
 
-jest.mock('./models/BookingModel.js', () => ({
-  __esModule: true,
-  default: {
-    updateMany: jest.fn(),
-    aggregate: jest.fn(),
-    find: jest.fn(),
-  },
-}));
-
-jest.mock('./utils/cloudinaryConfig.js', () => ({
-  __esModule: true,
-  uploader: { upload: jest.fn() },
-  cloudinaryConfig: jest.fn((req, res, next) => next()),
-}));
-
-jest.mock('./utils/multer.js', () => ({
-  __esModule: true,
-  multerUploads: jest.fn((req, res, next) => next()),
-  multerMultipleUploads: jest.fn((req, res, next) => next()),
-  base64Converter: jest.fn((req) =>
-    (req.files || []).map((f, i) => ({ filename: `file-${i}`, data: `data-${i}` }))
-  ),
-}));
-
-jest.mock('./utils/error.js', () => ({
-  __esModule: true,
-  errorHandler: (statusCode, message) => ({ statusCode, message }),
-}));
-
-// Importar SUTs después de mocks
 import Vehicle from './models/vehicleModel.js';
 import User from './models/userModel.js';
-import { uploader } from './utils/cloudinaryConfig.js';
-import { base64Converter } from './utils/multer.js';
+import Booking from './models/BookingModel.js';
+
+import { cloudinary } from './utils/cloudinaryConfig.js';
+import * as multerUtils from './utils/multer.js';
 import { errorHandler } from './utils/error.js';
+
+// Importar SUTs después de mocks
+const uploader = cloudinary.uploader;
+const { base64Converter } = multerUtils;
 import {
   vendorAddVehicle,
   vendorEditVehicles,
@@ -80,13 +50,12 @@ import { verifyToken } from './utils/verifyUser.js';
 import jwt from 'jsonwebtoken';
 import * as authController from './controllers/authController.js';
 import * as bookingController from './controllers/userControllers/userBookingController.js';
-import Booking from './models/BookingModel.js';
 
 jest.mock('./services/checkAvailableVehicle.js', () => ({
   __esModule: true,
   availableAtDate: jest.fn(),
 }));
-import { availableAtDate } from './services/checkAvailableVehicle.js';
+import * as availabilityService from './services/checkAvailableVehicle.js';
 
 jest.mock('razorpay', () => {
   return jest.fn().mockImplementation(() => ({
@@ -160,7 +129,7 @@ describe('vendorAddVehicle', () => {
     };
     const { req, res, next } = createReqResNext({ body: payload, files: [{}, {}] });
 
-    uploader.upload.mockResolvedValue({ secure_url: 'https://cloud/image.png' });
+    jest.spyOn(uploader, 'upload').mockResolvedValue({ secure_url: 'https://cloud/image.png' });
 
     // Stub de save
     const saveSpy = jest.fn().mockResolvedValue(true);
@@ -192,7 +161,7 @@ describe('vendorEditVehicles', () => {
 
   test('actualiza vehículo y devuelve editado', async () => {
     const edited = { _id: 'v1', name: 'ok' };
-    Vehicle.findByIdAndUpdate.mockResolvedValue(edited);
+    jest.spyOn(Vehicle, 'findByIdAndUpdate').mockResolvedValue(edited);
     const { req, res, next } = createReqResNext({
       params: { id: 'v1' },
       body: { formData: { name: 'n', Seats: 4 } },
@@ -212,7 +181,7 @@ describe('vendorDeleteVehicles', () => {
 
   test('soft delete exitoso', async () => {
     const validId = new mongoose.Types.ObjectId().toHexString();
-    Vehicle.findOneAndUpdate.mockResolvedValue({ _id: validId, isDeleted: 'true' });
+    jest.spyOn(Vehicle, 'findOneAndUpdate').mockResolvedValue({ _id: validId, isDeleted: 'true' });
     const { req, res, next } = createReqResNext({ params: { id: validId } });
     await vendorDeleteVehicles(req, res, next);
     expect(res.status).toHaveBeenCalledWith(200);
@@ -229,8 +198,8 @@ describe('showVendorVehicles', () => {
 
   test('devuelve array vacío cuando el vendedor no tiene vehículos', async () => {
     const vid = new mongoose.Types.ObjectId().toHexString();
-    User.findById.mockResolvedValue({ _id: vid });
-    Vehicle.find.mockResolvedValue([]);
+    jest.spyOn(User, 'findById').mockResolvedValue({ _id: vid });
+    jest.spyOn(Vehicle, 'find').mockResolvedValue([]);
     const { req, res, next } = createReqResNext({ body: { _id: vid } });
     await showVendorVehicles(req, res, next);
     expect(res.status).toHaveBeenCalledWith(200);
@@ -239,9 +208,9 @@ describe('showVendorVehicles', () => {
 
   test('devuelve vehículos del vendedor', async () => {
     const vid = new mongoose.Types.ObjectId().toHexString();
-    User.findById.mockResolvedValue({ _id: vid });
+    jest.spyOn(User, 'findById').mockResolvedValue({ _id: vid });
     const data = [{ _id: 'a' }, { _id: 'b' }];
-    Vehicle.find.mockResolvedValue(data);
+    jest.spyOn(Vehicle, 'find').mockResolvedValue(data);
     const { req, res } = createReqResNext({ body: { _id: vid } });
     await showVendorVehicles(req, res, jest.fn());
     expect(res.status).toHaveBeenCalledWith(200);
@@ -275,8 +244,7 @@ describe('verifyToken middleware', () => {
 // ================= AUTH CONTROLLER =================
 describe('authController', () => {
   beforeEach(() => {
-    User.findOne.mockReset();
-    User.findByIdAndUpdate.mockReset();
+    jest.restoreAllMocks();
   });
 
   test('signIn falla si faltan credenciales', async () => {
@@ -288,8 +256,8 @@ describe('authController', () => {
   test('signIn exitoso devuelve tokens y usuario', async () => {
     const hashed = '$2a$10$saltsaltsaltsaltsaltsaTeST4f1gM1b0';
     const validUser = { _id: 'u1', email: 'a@b.com', password: hashed, isAdmin: false, isUser: true };
-    User.findOne.mockResolvedValue(validUser);
-    User.findByIdAndUpdate.mockResolvedValue({ _doc: { ...validUser, password: hashed } });
+    jest.spyOn(User, 'findOne').mockResolvedValue(validUser);
+    jest.spyOn(User, 'findByIdAndUpdate').mockResolvedValue({ _doc: { ...validUser, password: hashed } });
     const { req, res, next } = createReqResNext({ body: { email: 'a@b.com', password: 'secret' } });
     // mock compareSync
     jest.spyOn(bcryptjs, 'compareSync').mockReturnValue(true);
@@ -310,10 +278,8 @@ describe('bookingController', () => {
   });
 
   test('BookCar éxito responde ok', async () => {
-    // Fake de save() en instancia de Booking: interceptaremos el constructor usando jest.spyOn
-    const saveMock = jest.fn().mockResolvedValue({ _id: 'b1' });
-    // Monkeypatch del prototipo (new Booking().save)
-    Booking.prototype = { save: saveMock };
+    // Configurar mock de save definido en el mock del módulo
+    Booking.__saveMock.mockResolvedValue({ _id: 'b1' });
     const { req, res, next } = createReqResNext({ body: {
       user_id: 'u1', vehicle_id: 'v1', totalPrice: 10, pickupDate: new Date().toISOString(), dropoffDate: new Date(Date.now()+3600e3).toISOString(), pickup_location: 'L', dropoff_location: 'L2'
     }});
@@ -329,7 +295,7 @@ describe('bookingController', () => {
   });
 
   test('getVehiclesWithoutBooking devuelve disponibles y continúa al siguiente middleware', async () => {
-    availableAtDate.mockResolvedValue([
+    availabilityService.availableAtDate.mockResolvedValue([
       { district: 'D', location: 'L', isDeleted: 'false', model: 'M' },
       { district: 'X', location: 'Y', isDeleted: 'false', model: 'N' },
     ]);
@@ -341,7 +307,7 @@ describe('bookingController', () => {
 
   test('showAllVariants filtra por modelo', async () => {
     const { req, res, next } = createReqResNext();
-    res.locals.actionResult = [[{model:'A'},{model:'B'}],'A'];
+    res.locals = { actionResult: [[{model:'A'},{model:'B'}],'A'] };
     await bookingController.showAllVariants(req, res, next);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith([{model:'A'}]);
@@ -349,14 +315,14 @@ describe('bookingController', () => {
 
   test('showOneofkind devuelve un solo vehículo por modelo', async () => {
     const { req, res, next } = createReqResNext();
-    res.locals.actionResult = [[{model:'A',id:1},{model:'A',id:2},{model:'B',id:3}]];
+    res.locals = { actionResult: [[{model:'A',id:1},{model:'A',id:2},{model:'B',id:3}]] };
     await bookingController.showOneofkind(req, res, next);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith([{model:'A',id:1},{model:'B',id:3}]);
   });
 
   test('filterVehicles usa aggregate y devuelve resultado', async () => {
-    Vehicle.aggregate.mockResolvedValue([{ id: 'v1' }]);
+    jest.spyOn(Vehicle, 'aggregate').mockResolvedValue([{ id: 'v1' }]);
     const { req, res, next } = createReqResNext({ body: [{ type: 'car_type', suv: true }, { type: 'transmition', automatic: true }] });
     await bookingController.filterVehicles(req, res, next);
     expect(Vehicle.aggregate).toHaveBeenCalled();
@@ -365,7 +331,7 @@ describe('bookingController', () => {
 
   test('findBookingsOfUser arma pipeline y devuelve array', async () => {
     const uid = new mongoose.Types.ObjectId().toHexString();
-    Booking.aggregate.mockResolvedValue([{ bookingDetails: {}, vehicleDetails: {} }]);
+    jest.spyOn(Booking, 'aggregate').mockResolvedValue([{ bookingDetails: {}, vehicleDetails: {} }]);
     const { req, res, next } = createReqResNext({ body: { userId: uid } });
     await bookingController.findBookingsOfUser(req, res, next);
     expect(res.status).toHaveBeenCalledWith(200);
@@ -373,7 +339,7 @@ describe('bookingController', () => {
 
   test('latestbookings devuelve último booking', async () => {
     const uid = new mongoose.Types.ObjectId().toHexString();
-    Booking.aggregate.mockResolvedValue([{ id: 1 }]);
+    jest.spyOn(Booking, 'aggregate').mockResolvedValue([{ id: 1 }]);
     const { req, res, next } = createReqResNext({ body: { user_id: uid } });
     await bookingController.latestbookings(req, res, next);
     expect(res.status).toHaveBeenCalledWith(200);
@@ -381,7 +347,7 @@ describe('bookingController', () => {
   });
 
   test('updateExistingStatuses acumula resultados', async () => {
-    Booking.updateMany.mockResolvedValue({ modifiedCount: 2 });
+    jest.spyOn(Booking, 'updateMany').mockResolvedValue({ modifiedCount: 2 });
     const { req, res, next } = createReqResNext();
     await bookingController.updateExistingStatuses(req, res, next);
     expect(res.status).toHaveBeenCalledWith(200);
