@@ -10,7 +10,6 @@ module.exports = {
         '!backend/test.js'
       ],
       coverageDirectory: 'coverage',
-      coverageReporters: ['text', 'lcov', 'html'],
       testEnvironment: 'node',
       transform: {},
       testEnvironmentOptions: {
@@ -19,6 +18,6 @@ module.exports = {
     }
   ],
   collectCoverage: true,
+  // Permitir que las suites fallen sin detener cobertura en CI
   passWithNoTests: true,
-  forceExit: true,
 };
