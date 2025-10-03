@@ -1569,5 +1569,279 @@ describe('userAllVehiclesController errores', () => {
   });
 });
 
+// ===== NUEVAS PRUEBAS ENHANCED PARA 90% COVERAGE =====
+console.log(' CARGANDO NUEVAS PRUEBAS ENHANCED...');
 
+describe(' ENHANCED TESTS - Funcionalidades Críticas del Proyecto', () => {
+  
+  describe('📱 authController - Casos de Éxito Adicionales', () => {
+    test(' signUp exitoso con phoneNumber opcional', async () => {
+      // Arrange
+      const { req, res, next } = createReqResNext({
+        body: {
+          username: 'testuser',
+          email: 'test@example.com',
+          password: 'Password123!',
+          phoneNumber: '+1234567890'
+        }
+      });
+      
+      User.findOne.mockResolvedValue(null);
+      jest.spyOn(bcryptjs, 'hash').mockResolvedValue('hashedPassword');
+      User.prototype.save.mockResolvedValue(true);
+      
+      // Act
+      await authController.signUp(req, res, next);
+      
+      // Assert
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Usuario creado exitosamente' });
+    });
+
+    test(' signUp exitoso sin phoneNumber', async () => {
+      // Arrange
+      const { req, res, next } = createReqResNext({
+        body: {
+          username: 'testuser',
+          email: 'test@example.com',
+          password: 'Password123!'
+        }
+      });
+      
+      User.findOne.mockResolvedValue(null);
+      jest.spyOn(bcryptjs, 'hash').mockResolvedValue('hashedPassword');
+      User.prototype.save.mockResolvedValue(true);
+      
+      // Act
+      await authController.signUp(req, res, next);
+      
+      // Assert
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Usuario creado exitosamente' });
+    });
+
+    test(' signIn exitoso y actualiza refreshToken', async () => {
+      // Arrange
+      const { req, res, next } = createReqResNext({
+        body: {
+          email: 'test@example.com',
+          password: 'Password123!'
+        }
+      });
+      
+      const mockUser = {
+        _id: '507f1f77bcf86cd799439011',
+        email: 'test@example.com',
+        password: 'hashedPassword',
+        isUser: true,
+        save: jest.fn().mockResolvedValue(true)
+      };
+      
+      User.findOne.mockResolvedValue(mockUser);
+      jest.spyOn(bcryptjs, 'compare').mockResolvedValue(true);
+      mockSign.mockReturnValue('jwtToken');
+      
+      // Act
+      await authController.signIn(req, res, next);
+      
+      // Assert
+      expect(mockUser.save).toHaveBeenCalled();
+      expect(res.cookie).toHaveBeenCalledWith('access_token', 'jwtToken', expect.any(Object));
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    test(' google signIn con usuario existente que es vendor', async () => {
+      // Arrange
+      const { req, res, next } = createReqResNext({
+        body: {
+          email: 'vendor@example.com',
+          name: 'Vendor User'
+        }
+      });
+      
+      User.findOne.mockReturnValue({
+        lean: jest.fn().mockResolvedValue({
+          _id: '507f1f77bcf86cd799439011',
+          email: 'vendor@example.com',
+          isVendor: true
+        })
+      });
+      
+      // Act
+      await authController.google(req, res, next);
+      
+      // Assert
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({ 
+          statusCode: 409, 
+          message: 'Este correo pertenece a un vendedor. Por favor, inicie sesión como vendedor.' 
+        })
+      );
+    });
+  });
+
+  describe(' bookingController - Casos de Éxito Adicionales', () => {
+    test(' BookCar exitoso con datos válidos', async () => {
+      // Arrange
+      const { req, res, next } = createReqResNext({
+        body: {
+          user_id: '507f1f77bcf86cd799439011',
+          vehicle_id: '507f1f77bcf86cd799439012',
+          totalPrice: 150,
+          pickupDate: new Date().toISOString(),
+          dropoffDate: new Date(Date.now() + 86400000).toISOString(),
+          pickup_location: 'Madrid Centro',
+          dropoff_location: 'Madrid Aeropuerto'
+        }
+      });
+      
+      const mockVehicle = {
+        _id: '507f1f77bcf86cd799439012',
+        name: 'Toyota Corolla',
+        price: 50
+      };
+      
+      Vehicle.findById.mockResolvedValue(mockVehicle);
+      mockAvailableAtDate.mockResolvedValue([mockVehicle]);
+      Booking.prototype.save.mockResolvedValue(true);
+      
+      // Act
+      await bookingController.BookCar(req, res, next);
+      
+      // Assert
+      expect(Vehicle.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439012');
+      expect(mockAvailableAtDate).toHaveBeenCalled();
+      expect(Booking.prototype.save).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.any(String) })
+      );
+    });
+
+    test(' getVehiclesWithoutBooking con filtros avanzados', async () => {
+      // Arrange
+      const { req, res, next } = createReqResNext({
+        body: {
+          pickUpDistrict: 'Madrid',
+          pickUpLocation: 'Centro',
+          pickupDate: new Date().toISOString(),
+          dropOffDate: new Date(Date.now() + 86400000).toISOString(),
+          model: 'Toyota',
+          company: 'Toyota',
+          year_made: 2023,
+          fuel_type: 'petrol',
+          price_min: 30,
+          price_max: 100
+        }
+      });
+      
+      const mockVehicles = [
+        {
+          _id: '507f1f77bcf86cd799439012',
+          name: 'Toyota Corolla',
+          company: 'Toyota',
+          year_made: 2023,
+          fuel_type: 'petrol',
+          price: 50,
+          district: 'Madrid',
+          location: 'Centro'
+        }
+      ];
+      
+      mockAvailableAtDate.mockResolvedValue(mockVehicles);
+      
+      // Act
+      await bookingController.getVehiclesWithoutBooking(req, res, next);
+      
+      // Assert
+      expect(mockAvailableAtDate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pickUpDistrict: 'Madrid',
+          pickUpLocation: 'Centro',
+          model: 'Toyota',
+          company: 'Toyota',
+          year_made: 2023,
+          fuel_type: 'petrol',
+          price_min: 30,
+          price_max: 100
+        })
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockVehicles);
+    });
+  });
+
+  describe(' adminController - Casos de Éxito Adicionales', () => {
+    test(' adminAuth con refreshToken update', async () => {
+      // Arrange
+      const { req, res, next } = createReqResNext({
+        body: {
+          email: 'admin@example.com',
+          password: 'AdminPassword123!'
+        }
+      });
+      
+      const mockAdmin = {
+        _id: '507f1f77bcf86cd799439011',
+        email: 'admin@example.com',
+        password: 'hashedPassword',
+        isAdmin: true,
+        save: jest.fn().mockResolvedValue(true)
+      };
+      
+      User.findOne.mockResolvedValue(mockAdmin);
+      jest.spyOn(bcryptjs, 'compare').mockResolvedValue(true);
+      mockSign.mockReturnValue('adminJwtToken');
+      
+      // Act
+      await adminController.adminAuth(req, res, next);
+      
+      // Assert
+      expect(mockAdmin.save).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.any(String) })
+      );
+    });
+  });
+
+  describe(' vendorController - Casos de Éxito Adicionales', () => {
+    test(' vendorSignin con refreshToken update', async () => {
+      // Arrange
+      const { req, res, next } = createReqResNext({
+        body: {
+          email: 'vendor@example.com',
+          password: 'VendorPassword123!'
+        }
+      });
+      
+      const mockVendor = {
+        _id: '507f1f77bcf86cd799439011',
+        email: 'vendor@example.com',
+        password: 'hashedPassword',
+        isVendor: true,
+        save: jest.fn().mockResolvedValue(true)
+      };
+      
+      User.findOne.mockResolvedValue(mockVendor);
+      jest.spyOn(bcryptjs, 'compare').mockResolvedValue(true);
+      mockSign.mockReturnValue('vendorJwtToken');
+      
+      // Act
+      await vendorAuth.vendorSignin(req, res, next);
+      
+      // Assert
+      expect(mockVendor.save).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.any(String) })
+      );
+    });
+  });
+});
+
+console.log(' NUEVAS PRUEBAS ENHANCED CARGADAS EXITOSAMENTE');
+console.log(' ENFOQUE: Funcionalidades críticas del proyecto Alquiler-Autos');
+console.log(' PRINCIPIOS: AAA, FIRST, Mocks, Assertions');
+console.log(' OBJETIVO: Alcanzar 90%+ de cobertura en SonarCloud');
 
