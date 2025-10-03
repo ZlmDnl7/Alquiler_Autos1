@@ -10,6 +10,7 @@ module.exports = {
         '!backend/test.js'
       ],
       coverageDirectory: 'coverage',
+      coverageReporters: ['text', 'lcov', 'html'],
       testEnvironment: 'node',
       transform: {},
       testEnvironmentOptions: {
@@ -18,15 +19,6 @@ module.exports = {
     }
   ],
   collectCoverage: true,
-  // Permitir que las suites fallen sin detener cobertura en CI
   passWithNoTests: true,
-  // Forzar cobertura incluso con fallos
   forceExit: true,
-  // Generar cobertura incluso si hay fallos
-  collectCoverageFrom: [
-    'backend/**/*.js',
-    '!backend/node_modules/**',
-    '!backend/coverage/**',
-    '!backend/test.js'
-  ],
 };
