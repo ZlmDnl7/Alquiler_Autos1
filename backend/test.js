@@ -3726,5 +3726,821 @@ describe(' PRUEBAS MASIVAS PARA 90% COBERTURA', () => {
   });
 });
 
+// ===== PRUEBAS ADICIONALES PARA 90% COVERAGE =====
+console.log('🚀 AGREGANDO PRUEBAS PARA 90% COVERAGE...');
+
+describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
+  
+  describe('📱 authController - Casos de Éxito Reales', () => {
+    test('✅ signUp exitoso con phoneNumber opcional', async () => {
+      // Arrange: Preparar datos para registro con teléfono
+      const { req, res, next } = createReqResNext({
+        body: {
+          username: 'testuser',
+          email: 'test@example.com',
+          password: 'Password123!',
+          phoneNumber: '+1234567890'
+        }
+      });
+      
+      User.findOne.mockResolvedValue(null);
+      jest.spyOn(bcryptjs, 'hash').mockResolvedValue('hashedPassword');
+      User.prototype.save.mockResolvedValue(true);
+      
+      // Act: Ejecutar registro de usuario
+      await authController.signUp(req, res, next);
+      
+      // Assert: Verificar que se creó exitosamente
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Usuario creado exitosamente' });
+    });
+
+    test('✅ signIn exitoso y actualiza refreshToken', async () => {
+      // Arrange: Preparar datos para inicio de sesión
+      const { req, res, next } = createReqResNext({
+        body: {
+          email: 'test@example.com',
+          password: 'Password123!'
+        }
+      });
+      
+      const mockUser = {
+        _id: '507f1f77bcf86cd799439011',
+        email: 'test@example.com',
+        password: 'hashedPassword',
+        isUser: true,
+        save: jest.fn().mockResolvedValue(true)
+      };
+      
+      User.findOne.mockResolvedValue(mockUser);
+      jest.spyOn(bcryptjs, 'compare').mockResolvedValue(true);
+      mockSign.mockReturnValue('jwtToken');
+      
+      // Act: Ejecutar inicio de sesión
+      await authController.signIn(req, res, next);
+      
+      // Assert: Verificar que se guardó el refreshToken
+      expect(mockUser.save).toHaveBeenCalled();
+      expect(res.cookie).toHaveBeenCalledWith('access_token', 'jwtToken', expect.any(Object));
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+  });
+
+  describe('🚗 bookingController - Casos de Éxito Reales', () => {
+    test('✅ BookCar exitoso con vehículo disponible', async () => {
+      // Arrange: Preparar datos para reserva exitosa
+      const { req, res, next } = createReqResNext({
+        body: {
+          user_id: '507f1f77bcf86cd799439011',
+          vehicle_id: '507f1f77bcf86cd799439012',
+          totalPrice: 150,
+          pickupDate: new Date().toISOString(),
+          dropoffDate: new Date(Date.now() + 86400000).toISOString(),
+          pickup_location: 'Madrid Centro',
+          dropoff_location: 'Madrid Aeropuerto'
+        }
+      });
+      
+      const mockVehicle = {
+        _id: '507f1f77bcf86cd799439012',
+        name: 'Toyota Corolla',
+        price: 50
+      };
+      
+      Vehicle.findById.mockResolvedValue(mockVehicle);
+      mockAvailableAtDate.mockResolvedValue([mockVehicle]);
+      Booking.prototype.save.mockResolvedValue(true);
+      
+      // Act: Ejecutar reserva de vehículo
+      await bookingController.BookCar(req, res, next);
+      
+      // Assert: Verificar que se creó la reserva
+      expect(Vehicle.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439012');
+      expect(mockAvailableAtDate).toHaveBeenCalled();
+      expect(Booking.prototype.save).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.any(String) })
+      );
+    });
+
+    test('✅ findBookingsOfUser con ObjectId válido', async () => {
+      // Arrange: Preparar datos para buscar reservas del usuario
+      const { req, res, next } = createReqResNext({
+        body: {
+          userId: '507f1f77bcf86cd799439011'
+        }
+      });
+      
+      const mockBookings = [
+        {
+          _id: '507f1f77bcf86cd799439020',
+          userId: '507f1f77bcf86cd799439011',
+          vehicleId: '507f1f77bcf86cd799439012',
+          status: 'reservado',
+          totalPrice: 150
+        }
+      ];
+      
+      Booking.aggregate.mockResolvedValue(mockBookings);
+      
+      // Act: Ejecutar búsqueda de reservas
+      await bookingController.findBookingsOfUser(req, res, next);
+      
+      // Assert: Verificar que se encontraron reservas
+      expect(Booking.aggregate).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockBookings);
+    });
+  });
+
+  describe('👑 adminController - Casos de Éxito Reales', () => {
+    test('✅ adminAuth con refreshToken update', async () => {
+      // Arrange: Preparar datos para autenticación de admin
+      const { req, res, next } = createReqResNext({
+        body: {
+          email: 'admin@example.com',
+          password: 'AdminPassword123!'
+        }
+      });
+      
+      const mockAdmin = {
+        _id: '507f1f77bcf86cd799439011',
+        email: 'admin@example.com',
+        password: 'hashedPassword',
+        isAdmin: true,
+        save: jest.fn().mockResolvedValue(true)
+      };
+      
+      User.findOne.mockResolvedValue(mockAdmin);
+      jest.spyOn(bcryptjs, 'compare').mockResolvedValue(true);
+      mockSign.mockReturnValue('adminJwtToken');
+      
+      // Act: Ejecutar autenticación de admin
+      await adminController.adminAuth(req, res, next);
+      
+      // Assert: Verificar que se guardó el refreshToken
+      expect(mockAdmin.save).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.any(String) })
+      );
+    });
+
+    test('✅ adminProfile con datos completos', async () => {
+      // Arrange: Preparar datos para perfil de admin
+      const { req, res, next } = createReqResNext({
+        body: {
+          id: '507f1f77bcf86cd799439011'
+        }
+      });
+      
+      const mockAdmin = {
+        _id: '507f1f77bcf86cd799439011',
+        username: 'admin',
+        email: 'admin@example.com',
+        isAdmin: true
+      };
+      
+      User.findById.mockResolvedValue(mockAdmin);
+      
+      // Act: Ejecutar obtención de perfil
+      await adminController.adminProfile(req, res, next);
+      
+      // Assert: Verificar que se obtuvo el perfil
+      expect(User.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockAdmin);
+    });
+  });
+
+  describe('🏪 vendorController - Casos de Éxito Reales', () => {
+    test('✅ vendorSignin con refreshToken update', async () => {
+      // Arrange: Preparar datos para inicio de sesión de vendedor
+      const { req, res, next } = createReqResNext({
+        body: {
+          email: 'vendor@example.com',
+          password: 'VendorPassword123!'
+        }
+      });
+      
+      const mockVendor = {
+        _id: '507f1f77bcf86cd799439011',
+        email: 'vendor@example.com',
+        password: 'hashedPassword',
+        isVendor: true,
+        save: jest.fn().mockResolvedValue(true)
+      };
+      
+      User.findOne.mockResolvedValue(mockVendor);
+      jest.spyOn(bcryptjs, 'compare').mockResolvedValue(true);
+      mockSign.mockReturnValue('vendorJwtToken');
+      
+      // Act: Ejecutar inicio de sesión de vendedor
+      await vendorAuth.vendorSignin(req, res, next);
+      
+      // Assert: Verificar que se guardó el refreshToken
+      expect(mockVendor.save).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.any(String) })
+      );
+    });
+  });
+
+  describe('🚗 vendorCrudController - Casos de Éxito Reales', () => {
+    test('✅ vendorAddVehicle con múltiples imágenes', async () => {
+      // Arrange: Preparar datos para agregar vehículo con imágenes
+      const { req, res, next } = createReqResNext({
+        body: {
+          registeration_number: 'ABC123',
+          company: 'Toyota',
+          name: 'Corolla',
+          model: 'XLI',
+          title: 'Toyota Corolla 2023',
+          base_package: 'base',
+          price: 100,
+          year_made: 2023,
+          fuel_type: 'petrol',
+          description: 'Coche confiable',
+          seat: 5,
+          transmition_type: 'manual',
+          registeration_end_date: new Date().toISOString(),
+          insurance_end_date: new Date().toISOString(),
+          polution_end_date: new Date().toISOString(),
+          car_type: 'sedan',
+          location: 'Madrid Centro',
+          district: 'Madrid',
+          addedBy: 'vendor',
+          vendorId: '507f1f77bcf86cd799439011'
+        },
+        files: [{}, {}, {}] // 3 imágenes
+      });
+      
+      const mockUploadResult = { secure_url: 'https://cloudinary.com/image.png' };
+      jest.spyOn(cloudinary.uploader, 'upload').mockResolvedValue(mockUploadResult);
+      
+      Vehicle.prototype.save.mockResolvedValue(true);
+      
+      // Act: Ejecutar agregar vehículo
+      await vendorCrud.vendorAddVehicle(req, res, next);
+      
+      // Assert: Verificar que se subieron las imágenes
+      expect(cloudinary.uploader.upload).toHaveBeenCalledTimes(3);
+      expect(Vehicle.prototype.save).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.any(String) })
+      );
+    });
+
+    test('✅ showVendorVehicles retorna vehículos del vendedor', async () => {
+      // Arrange: Preparar datos para mostrar vehículos del vendedor
+      const { req, res, next } = createReqResNext({
+        body: {
+          vendorId: '507f1f77bcf86cd799439011'
+        }
+      });
+      
+      const mockVendorVehicles = [
+        {
+          _id: '507f1f77bcf86cd799439012',
+          name: 'Toyota Corolla',
+          vendorId: '507f1f77bcf86cd799439011',
+          isAdminApproved: true,
+          isDeleted: false
+        }
+      ];
+      
+      Vehicle.find.mockResolvedValue(mockVendorVehicles);
+      
+      // Act: Ejecutar búsqueda de vehículos del vendedor
+      await vendorCrud.showVendorVehicles(req, res, next);
+      
+      // Assert: Verificar que se encontraron vehículos
+      expect(Vehicle.find).toHaveBeenCalledWith({
+        vendorId: '507f1f77bcf86cd799439011'
+      });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockVendorVehicles);
+    });
+
+    test('✅ vendorEditVehicles actualiza vehículo', async () => {
+      // Arrange: Preparar datos para editar vehículo
+      const { req, res, next } = createReqResNext({
+        params: { id: '507f1f77bcf86cd799439012' },
+        body: {
+          name: 'Toyota Corolla Updated',
+          price: 120,
+          description: 'Updated description'
+        }
+      });
+      
+      const mockUpdatedVehicle = {
+        _id: '507f1f77bcf86cd799439012',
+        name: 'Toyota Corolla Updated',
+        price: 120,
+        description: 'Updated description',
+        isAdminApproved: false
+      };
+      
+      Vehicle.findByIdAndUpdate.mockResolvedValue(mockUpdatedVehicle);
+      
+      // Act: Ejecutar edición de vehículo
+      await vendorCrud.vendorEditVehicles(req, res, next);
+      
+      // Assert: Verificar que se actualizó el vehículo
+      expect(Vehicle.findByIdAndUpdate).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439012',
+        expect.objectContaining({
+          name: 'Toyota Corolla Updated',
+          price: 120,
+          description: 'Updated description',
+          isAdminApproved: false
+        }),
+        { new: true }
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockUpdatedVehicle);
+    });
+
+    test('✅ vendorDeleteVehicles marca como eliminado', async () => {
+      // Arrange: Preparar datos para eliminar vehículo
+      const { req, res, next } = createReqResNext({
+        params: { id: '507f1f77bcf86cd799439012' }
+      });
+      
+      const mockDeletedVehicle = {
+        _id: '507f1f77bcf86cd799439012',
+        name: 'Toyota Corolla',
+        isDeleted: true
+      };
+      
+      Vehicle.findByIdAndUpdate.mockResolvedValue(mockDeletedVehicle);
+      
+      // Act: Ejecutar eliminación de vehículo
+      await vendorCrud.vendorDeleteVehicles(req, res, next);
+      
+      // Assert: Verificar que se marcó como eliminado
+      expect(Vehicle.findByIdAndUpdate).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439012',
+        { isDeleted: true },
+        { new: true }
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockDeletedVehicle);
+    });
+  });
+
+  describe('🚗 userVehicles - Casos de Éxito Reales', () => {
+    test('✅ listAllVehicles con filtros de búsqueda', async () => {
+      // Arrange: Preparar datos para listar vehículos con filtros
+      const { req, res, next } = createReqResNext({
+        query: {
+          company: 'Toyota',
+          fuel_type: 'petrol',
+          price_min: '30',
+          price_max: '100'
+        }
+      });
+      
+      const mockFilteredVehicles = [
+        {
+          _id: '507f1f77bcf86cd799439012',
+          name: 'Toyota Corolla',
+          company: 'Toyota',
+          fuel_type: 'petrol',
+          price: 50,
+          isAdminApproved: true,
+          isDeleted: false
+        }
+      ];
+      
+      Vehicle.find.mockResolvedValue(mockFilteredVehicles);
+      
+      // Act: Ejecutar listado de vehículos
+      await userVehicles.listAllVehicles(req, res, next);
+      
+      // Assert: Verificar que se aplicaron los filtros
+      expect(Vehicle.find).toHaveBeenCalledWith({
+        isAdminApproved: true,
+        isDeleted: false,
+        company: 'Toyota',
+        fuel_type: 'petrol',
+        price: { $gte: 30, $lte: 100 }
+      });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockFilteredVehicles);
+    });
+
+    test('✅ showVehicleDetails con datos completos', async () => {
+      // Arrange: Preparar datos para mostrar detalles del vehículo
+      const { req, res, next } = createReqResNext({
+        params: {
+          id: '507f1f77bcf86cd799439012'
+        }
+      });
+      
+      const mockVehicleDetails = {
+        _id: '507f1f77bcf86cd799439012',
+        name: 'Toyota Corolla',
+        company: 'Toyota',
+        model: 'XLI',
+        year_made: 2023,
+        fuel_type: 'petrol',
+        seats: 5,
+        transmition: 'manual',
+        price: 50,
+        description: 'Coche confiable y económico',
+        image: ['image1.jpg', 'image2.jpg'],
+        location: 'Madrid Centro',
+        district: 'Madrid',
+        isAdminApproved: true,
+        isDeleted: false
+      };
+      
+      Vehicle.findById.mockResolvedValue(mockVehicleDetails);
+      
+      // Act: Ejecutar obtención de detalles
+      await userVehicles.showVehicleDetails(req, res, next);
+      
+      // Assert: Verificar que se obtuvieron los detalles
+      expect(Vehicle.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439012');
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockVehicleDetails);
+    });
+
+    test('✅ searchCar con parámetros avanzados', async () => {
+      // Arrange: Preparar datos para búsqueda avanzada
+      const { req, res, next } = createReqResNext({
+        body: {
+          pickUpDistrict: 'Madrid',
+          pickUpLocation: 'Centro',
+          pickupDate: new Date().toISOString(),
+          dropOffDate: new Date(Date.now() + 86400000).toISOString(),
+          model: 'Corolla',
+          company: 'Toyota',
+          fuel_type: 'petrol',
+          price_min: 30,
+          price_max: 100,
+          seats: 5
+        }
+      });
+      
+      const mockSearchResults = [
+        {
+          _id: '507f1f77bcf86cd799439012',
+          name: 'Toyota Corolla',
+          company: 'Toyota',
+          model: 'XLI',
+          fuel_type: 'petrol',
+          seats: 5,
+          price: 50,
+          district: 'Madrid',
+          location: 'Centro'
+        }
+      ];
+      
+      Vehicle.aggregate.mockResolvedValue(mockSearchResults);
+      
+      // Act: Ejecutar búsqueda avanzada
+      await userVehicles.searchCar(req, res, next);
+      
+      // Assert: Verificar que se encontraron resultados
+      expect(Vehicle.aggregate).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockSearchResults);
+    });
+  });
+});
+
+console.log('✅ PRUEBAS ADICIONALES CARGADAS PARA 90% COVERAGE');
+
+  describe('📊 adminDashboard - Casos de Éxito Reales', () => {
+    test('✅ showVehicles retorna todos los vehículos', async () => {
+      // Arrange: Preparar datos para mostrar todos los vehículos
+      const { req, res, next } = createReqResNext();
+      
+      const mockAllVehicles = [
+        {
+          _id: '507f1f77bcf86cd799439012',
+          name: 'Toyota Corolla',
+          isAdminApproved: true,
+          isDeleted: false
+        },
+        {
+          _id: '507f1f77bcf86cd799439013',
+          name: 'Honda Civic',
+          isAdminApproved: false,
+          isDeleted: false
+        }
+      ];
+      
+      Vehicle.find.mockResolvedValue(mockAllVehicles);
+      
+      // Act: Ejecutar obtención de todos los vehículos
+      await adminDashboard.showVehicles(req, res, next);
+      
+      // Assert: Verificar que se obtuvieron todos los vehículos
+      expect(Vehicle.find).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockAllVehicles);
+    });
+
+    test('✅ addProduct crea vehículo con múltiples imágenes', async () => {
+      // Arrange: Preparar datos para crear vehículo con imágenes
+      const { req, res, next } = createReqResNext({
+        body: {
+          registeration_number: 'XYZ789',
+          company: 'Honda',
+          name: 'Civic',
+          model: 'LX',
+          title: 'Honda Civic 2023',
+          base_package: 'base',
+          price: 80,
+          year_made: 2023,
+          fuel_type: 'petrol',
+          description: 'Coche deportivo',
+          seat: 5,
+          transmition_type: 'automatic',
+          registeration_end_date: new Date().toISOString(),
+          insurance_end_date: new Date().toISOString(),
+          polution_end_date: new Date().toISOString(),
+          car_type: 'sedan',
+          location: 'Barcelona Centro',
+          district: 'Barcelona',
+          addedBy: 'admin'
+        },
+        files: [{}, {}, {}] // 3 imágenes
+      });
+      
+      const mockUploadResult = { secure_url: 'https://cloudinary.com/image.png' };
+      jest.spyOn(cloudinary.uploader, 'upload').mockResolvedValue(mockUploadResult);
+      
+      Vehicle.prototype.save.mockResolvedValue(true);
+      
+      // Act: Ejecutar creación de vehículo
+      await adminDashboard.addProduct(req, res, next);
+      
+      // Assert: Verificar que se subieron las imágenes
+      expect(cloudinary.uploader.upload).toHaveBeenCalledTimes(3);
+      expect(Vehicle.prototype.save).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.any(String) })
+      );
+    });
+
+    test('✅ editVehicle actualiza vehículo existente', async () => {
+      // Arrange: Preparar datos para editar vehículo
+      const { req, res, next } = createReqResNext({
+        params: { id: '507f1f77bcf86cd799439012' },
+        body: {
+          name: 'Toyota Corolla Updated',
+          price: 120,
+          description: 'Updated description',
+          isAdminApproved: true
+        }
+      });
+      
+      const mockUpdatedVehicle = {
+        _id: '507f1f77bcf86cd799439012',
+        name: 'Toyota Corolla Updated',
+        price: 120,
+        description: 'Updated description',
+        isAdminApproved: true
+      };
+      
+      Vehicle.findByIdAndUpdate.mockResolvedValue(mockUpdatedVehicle);
+      
+      // Act: Ejecutar edición de vehículo
+      await adminDashboard.editVehicle(req, res, next);
+      
+      // Assert: Verificar que se actualizó el vehículo
+      expect(Vehicle.findByIdAndUpdate).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439012',
+        expect.objectContaining({
+          name: 'Toyota Corolla Updated',
+          price: 120,
+          description: 'Updated description',
+          isAdminApproved: true
+        }),
+        { new: true }
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockUpdatedVehicle);
+    });
+
+    test('✅ deleteVehicle marca como eliminado', async () => {
+      // Arrange: Preparar datos para eliminar vehículo
+      const { req, res, next } = createReqResNext({
+        params: { id: '507f1f77bcf86cd799439012' }
+      });
+      
+      const mockDeletedVehicle = {
+        _id: '507f1f77bcf86cd799439012',
+        name: 'Toyota Corolla',
+        isDeleted: true
+      };
+      
+      Vehicle.findByIdAndUpdate.mockResolvedValue(mockDeletedVehicle);
+      
+      // Act: Ejecutar eliminación de vehículo
+      await adminDashboard.deleteVehicle(req, res, next);
+      
+      // Assert: Verificar que se marcó como eliminado
+      expect(Vehicle.findByIdAndUpdate).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439012',
+        { isDeleted: true },
+        { new: true }
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockDeletedVehicle);
+    });
+  });
+
+  describe('📊 vendorBookings - Casos de Éxito Reales', () => {
+    test('✅ vendorBookings retorna reservas del vendedor', async () => {
+      // Arrange: Preparar datos para obtener reservas del vendedor
+      const { req, res, next } = createReqResNext({
+        body: {
+          vendorId: '507f1f77bcf86cd799439011'
+        }
+      });
+      
+      const mockVendorBookings = [
+        {
+          _id: '507f1f77bcf86cd799439020',
+          userId: '507f1f77bcf86cd799439022',
+          vehicleId: '507f1f77bcf86cd799439012',
+          vendorId: '507f1f77bcf86cd799439011',
+          status: 'reservado',
+          totalPrice: 150,
+          pickupDate: new Date(),
+          dropoffDate: new Date(Date.now() + 86400000)
+        }
+      ];
+      
+      Booking.aggregate.mockResolvedValue(mockVendorBookings);
+      
+      // Act: Ejecutar búsqueda de reservas del vendedor
+      await vendorBookings.vendorBookings(req, res, next);
+      
+      // Assert: Verificar que se encontraron reservas
+      expect(Booking.aggregate).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockVendorBookings);
+    });
+  });
+
+  describe('📊 masterCollection - Casos de Éxito Reales', () => {
+    test('✅ getCarModelData retorna datos de modelos', async () => {
+      // Arrange: Preparar datos para obtener datos de modelos
+      const { req, res, next } = createReqResNext();
+      
+      const mockCarModelData = [
+        {
+          _id: '507f1f77bcf86cd799439030',
+          company: 'Toyota',
+          models: ['Corolla', 'Camry', 'RAV4']
+        },
+        {
+          _id: '507f1f77bcf86cd799439031',
+          company: 'Honda',
+          models: ['Civic', 'Accord', 'CR-V']
+        }
+      ];
+      
+      MasterData.find.mockResolvedValue(mockCarModelData);
+      
+      // Act: Ejecutar obtención de datos de modelos
+      await masterCollection.getCarModelData(req, res, next);
+      
+      // Assert: Verificar que se obtuvieron los datos
+      expect(MasterData.find).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockCarModelData);
+    });
+
+    test('✅ insertDummyData inserta datos de prueba', async () => {
+      // Arrange: Preparar datos para insertar datos dummy
+      const { req, res, next } = createReqResNext();
+      
+      const mockDummyData = [
+        {
+          company: 'Toyota',
+          models: ['Corolla', 'Camry', 'RAV4']
+        },
+        {
+          company: 'Honda',
+          models: ['Civic', 'Accord', 'CR-V']
+        }
+      ];
+      
+      MasterData.insertMany.mockResolvedValue(mockDummyData);
+      
+      // Act: Ejecutar inserción de datos dummy
+      await masterCollection.insertDummyData(req, res, next);
+      
+      // Assert: Verificar que se insertaron los datos
+      expect(MasterData.insertMany).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.any(String) })
+      );
+    });
+  });
+
+  describe('⚙️ availabilityService - Casos de Éxito Reales', () => {
+    test('✅ availableAtDate filtra vehículos no disponibles', async () => {
+      // Arrange: Preparar datos para verificar disponibilidad
+      const searchParams = {
+        pickUpDistrict: 'Madrid',
+        pickUpLocation: 'Centro',
+        pickupDate: new Date().toISOString(),
+        dropOffDate: new Date(Date.now() + 86400000).toISOString(),
+        model: 'Toyota Corolla'
+      };
+      
+      const mockBookings = [
+        {
+          vehicleId: '507f1f77bcf86cd799439012',
+          pickupDate: new Date(),
+          dropoffDate: new Date(Date.now() + 86400000)
+        }
+      ];
+      
+      const mockAllVehicles = [
+        {
+          _id: '507f1f77bcf86cd799439012',
+          name: 'Toyota Corolla',
+          district: 'Madrid',
+          location: 'Centro'
+        },
+        {
+          _id: '507f1f77bcf86cd799439013',
+          name: 'Honda Civic',
+          district: 'Madrid',
+          location: 'Centro'
+        }
+      ];
+      
+      Booking.find.mockResolvedValue(mockBookings);
+      Vehicle.find.mockResolvedValue(mockAllVehicles);
+      
+      // Act: Ejecutar verificación de disponibilidad
+      const result = await availabilityService.availableAtDate(searchParams);
+      
+      // Assert: Verificar que se filtraron correctamente
+      expect(Booking.find).toHaveBeenCalled();
+      expect(Vehicle.find).toHaveBeenCalled();
+      expect(result).toHaveLength(1); // Solo Honda Civic debería estar disponible
+      expect(result[0]._id).toBe('507f1f77bcf86cd799439013');
+    });
+
+    test('✅ availableAtDate maneja fechas correctamente', async () => {
+      // Arrange: Preparar datos para verificar fechas
+      const searchParams = {
+        pickUpDistrict: 'Madrid',
+        pickUpLocation: 'Centro',
+        pickupDate: new Date('2024-01-15').toISOString(),
+        dropOffDate: new Date('2024-01-20').toISOString(),
+        model: 'Toyota Corolla'
+      };
+      
+      const mockBookings = [
+        {
+          vehicleId: '507f1f77bcf86cd799439012',
+          pickupDate: new Date('2024-01-10'),
+          dropoffDate: new Date('2024-01-12')
+        }
+      ];
+      
+      const mockAllVehicles = [
+        {
+          _id: '507f1f77bcf86cd799439012',
+          name: 'Toyota Corolla',
+          district: 'Madrid',
+          location: 'Centro'
+        }
+      ];
+      
+      Booking.find.mockResolvedValue(mockBookings);
+      Vehicle.find.mockResolvedValue(mockAllVehicles);
+      
+      // Act: Ejecutar verificación de fechas
+      const result = await availabilityService.availableAtDate(searchParams);
+      
+      // Assert: Verificar que se manejaron las fechas correctamente
+      expect(result).toHaveLength(1); // Debería estar disponible (no hay conflicto de fechas)
+      expect(result[0]._id).toBe('507f1f77bcf86cd799439012');
+    });
+  });
+});
+
+console.log('🎯 PRUEBAS COMPLETAS PARA 90% COVERAGE');
+console.log('📊 PRINCIPIOS: AAA, FIRST, Mocks, Assertions');
+console.log('🚀 OBJETIVO: Alcanzar 90%+ de cobertura en SonarCloud');
+
 
 
