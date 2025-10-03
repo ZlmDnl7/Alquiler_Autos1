@@ -3652,7 +3652,7 @@ describe(' PRUEBAS MASIVAS PARA 90% COBERTURA', () => {
     });
   });
 
-  describe('🔒 Casos de Seguridad y Validación', () => {
+  describe(' Casos de Seguridad y Validación', () => {
     test('signUp con inyección SQL en username', async () => {
       // Arrange
       const { req, res, next } = createReqResNext({
@@ -3727,12 +3727,12 @@ describe(' PRUEBAS MASIVAS PARA 90% COBERTURA', () => {
 });
 
 // ===== PRUEBAS ADICIONALES PARA 90% COVERAGE =====
-console.log('🚀 AGREGANDO PRUEBAS PARA 90% COVERAGE...');
+console.log(' AGREGANDO PRUEBAS PARA 90% COVERAGE...');
 
-describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
+describe(' COVERAGE BOOST - Funcionalidades Críticas', () => {
   
-  describe('📱 authController - Casos de Éxito Reales', () => {
-    test('✅ signUp exitoso con phoneNumber opcional', async () => {
+  describe(' authController - Casos de Éxito Reales', () => {
+    test(' signUp exitoso con phoneNumber opcional', async () => {
       // Arrange: Preparar datos para registro con teléfono
       const { req, res, next } = createReqResNext({
         body: {
@@ -3755,7 +3755,7 @@ describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Usuario creado exitosamente' });
     });
 
-    test('✅ signIn exitoso y actualiza refreshToken', async () => {
+    test(' signIn exitoso y actualiza refreshToken', async () => {
       // Arrange: Preparar datos para inicio de sesión
       const { req, res, next } = createReqResNext({
         body: {
@@ -3786,8 +3786,8 @@ describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
     });
   });
 
-  describe('🚗 bookingController - Casos de Éxito Reales', () => {
-    test('✅ BookCar exitoso con vehículo disponible', async () => {
+  describe(' bookingController - Casos de Éxito Reales', () => {
+    test(' BookCar exitoso con vehículo disponible', async () => {
       // Arrange: Preparar datos para reserva exitosa
       const { req, res, next } = createReqResNext({
         body: {
@@ -3824,7 +3824,7 @@ describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
       );
     });
 
-    test('✅ findBookingsOfUser con ObjectId válido', async () => {
+    test(' findBookingsOfUser con ObjectId válido', async () => {
       // Arrange: Preparar datos para buscar reservas del usuario
       const { req, res, next } = createReqResNext({
         body: {
@@ -3854,8 +3854,8 @@ describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
     });
   });
 
-  describe('👑 adminController - Casos de Éxito Reales', () => {
-    test('✅ adminAuth con refreshToken update', async () => {
+  describe(' adminController - Casos de Éxito Reales', () => {
+    test(' adminAuth con refreshToken update', async () => {
       // Arrange: Preparar datos para autenticación de admin
       const { req, res, next } = createReqResNext({
         body: {
@@ -3887,7 +3887,7 @@ describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
       );
     });
 
-    test('✅ adminProfile con datos completos', async () => {
+    test(' adminProfile con datos completos', async () => {
       // Arrange: Preparar datos para perfil de admin
       const { req, res, next } = createReqResNext({
         body: {
@@ -3914,8 +3914,8 @@ describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
     });
   });
 
-  describe('🏪 vendorController - Casos de Éxito Reales', () => {
-    test('✅ vendorSignin con refreshToken update', async () => {
+  describe(' vendorController - Casos de Éxito Reales', () => {
+    test(' vendorSignin con refreshToken update', async () => {
       // Arrange: Preparar datos para inicio de sesión de vendedor
       const { req, res, next } = createReqResNext({
         body: {
@@ -3948,8 +3948,8 @@ describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
     });
   });
 
-  describe('🚗 vendorCrudController - Casos de Éxito Reales', () => {
-    test('✅ vendorAddVehicle con múltiples imágenes', async () => {
+  describe(' vendorCrudController - Casos de Éxito Reales', () => {
+    test(' vendorAddVehicle con múltiples imágenes', async () => {
       // Arrange: Preparar datos para agregar vehículo con imágenes
       const { req, res, next } = createReqResNext({
         body: {
@@ -3994,7 +3994,7 @@ describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
       );
     });
 
-    test('✅ showVendorVehicles retorna vehículos del vendedor', async () => {
+    test(' showVendorVehicles retorna vehículos del vendedor', async () => {
       // Arrange: Preparar datos para mostrar vehículos del vendedor
       const { req, res, next } = createReqResNext({
         body: {
@@ -4025,7 +4025,7 @@ describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
       expect(res.json).toHaveBeenCalledWith(mockVendorVehicles);
     });
 
-    test('✅ vendorEditVehicles actualiza vehículo', async () => {
+    test(' vendorEditVehicles actualiza vehículo', async () => {
       // Arrange: Preparar datos para editar vehículo
       const { req, res, next } = createReqResNext({
         params: { id: '507f1f77bcf86cd799439012' },
@@ -4064,7 +4064,7 @@ describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
       expect(res.json).toHaveBeenCalledWith(mockUpdatedVehicle);
     });
 
-    test('✅ vendorDeleteVehicles marca como eliminado', async () => {
+    test(' vendorDeleteVehicles marca como eliminado', async () => {
       // Arrange: Preparar datos para eliminar vehículo
       const { req, res, next } = createReqResNext({
         params: { id: '507f1f77bcf86cd799439012' }
@@ -4092,8 +4092,8 @@ describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
     });
   });
 
-  describe('🚗 userVehicles - Casos de Éxito Reales', () => {
-    test('✅ listAllVehicles con filtros de búsqueda', async () => {
+  describe(' userVehicles - Casos de Éxito Reales', () => {
+    test(' listAllVehicles con filtros de búsqueda', async () => {
       // Arrange: Preparar datos para listar vehículos con filtros
       const { req, res, next } = createReqResNext({
         query: {
@@ -4133,7 +4133,7 @@ describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
       expect(res.json).toHaveBeenCalledWith(mockFilteredVehicles);
     });
 
-    test('✅ showVehicleDetails con datos completos', async () => {
+    test(' showVehicleDetails con datos completos', async () => {
       // Arrange: Preparar datos para mostrar detalles del vehículo
       const { req, res, next } = createReqResNext({
         params: {
@@ -4170,7 +4170,7 @@ describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
       expect(res.json).toHaveBeenCalledWith(mockVehicleDetails);
     });
 
-    test('✅ searchCar con parámetros avanzados', async () => {
+    test(' searchCar con parámetros avanzados', async () => {
       // Arrange: Preparar datos para búsqueda avanzada
       const { req, res, next } = createReqResNext({
         body: {
@@ -4212,12 +4212,9 @@ describe('🎯 COVERAGE BOOST - Funcionalidades Críticas', () => {
       expect(res.json).toHaveBeenCalledWith(mockSearchResults);
     });
   });
-});
 
-console.log('✅ PRUEBAS ADICIONALES CARGADAS PARA 90% COVERAGE');
-
-  describe('📊 adminDashboard - Casos de Éxito Reales', () => {
-    test('✅ showVehicles retorna todos los vehículos', async () => {
+  describe(' adminDashboard - Casos de Éxito Reales', () => {
+    test(' showVehicles retorna todos los vehículos', async () => {
       // Arrange: Preparar datos para mostrar todos los vehículos
       const { req, res, next } = createReqResNext();
       
@@ -4247,7 +4244,7 @@ console.log('✅ PRUEBAS ADICIONALES CARGADAS PARA 90% COVERAGE');
       expect(res.json).toHaveBeenCalledWith(mockAllVehicles);
     });
 
-    test('✅ addProduct crea vehículo con múltiples imágenes', async () => {
+    test(' addProduct crea vehículo con múltiples imágenes', async () => {
       // Arrange: Preparar datos para crear vehículo con imágenes
       const { req, res, next } = createReqResNext({
         body: {
@@ -4291,7 +4288,7 @@ console.log('✅ PRUEBAS ADICIONALES CARGADAS PARA 90% COVERAGE');
       );
     });
 
-    test('✅ editVehicle actualiza vehículo existente', async () => {
+    test(' editVehicle actualiza vehículo existente', async () => {
       // Arrange: Preparar datos para editar vehículo
       const { req, res, next } = createReqResNext({
         params: { id: '507f1f77bcf86cd799439012' },
@@ -4331,7 +4328,7 @@ console.log('✅ PRUEBAS ADICIONALES CARGADAS PARA 90% COVERAGE');
       expect(res.json).toHaveBeenCalledWith(mockUpdatedVehicle);
     });
 
-    test('✅ deleteVehicle marca como eliminado', async () => {
+    test(' deleteVehicle marca como eliminado', async () => {
       // Arrange: Preparar datos para eliminar vehículo
       const { req, res, next } = createReqResNext({
         params: { id: '507f1f77bcf86cd799439012' }
@@ -4359,8 +4356,8 @@ console.log('✅ PRUEBAS ADICIONALES CARGADAS PARA 90% COVERAGE');
     });
   });
 
-  describe('📊 vendorBookings - Casos de Éxito Reales', () => {
-    test('✅ vendorBookings retorna reservas del vendedor', async () => {
+  describe(' vendorBookings - Casos de Éxito Reales', () => {
+    test(' vendorBookings retorna reservas del vendedor', async () => {
       // Arrange: Preparar datos para obtener reservas del vendedor
       const { req, res, next } = createReqResNext({
         body: {
@@ -4393,8 +4390,8 @@ console.log('✅ PRUEBAS ADICIONALES CARGADAS PARA 90% COVERAGE');
     });
   });
 
-  describe('📊 masterCollection - Casos de Éxito Reales', () => {
-    test('✅ getCarModelData retorna datos de modelos', async () => {
+  describe(' masterCollection - Casos de Éxito Reales', () => {
+    test(' getCarModelData retorna datos de modelos', async () => {
       // Arrange: Preparar datos para obtener datos de modelos
       const { req, res, next } = createReqResNext();
       
@@ -4422,7 +4419,7 @@ console.log('✅ PRUEBAS ADICIONALES CARGADAS PARA 90% COVERAGE');
       expect(res.json).toHaveBeenCalledWith(mockCarModelData);
     });
 
-    test('✅ insertDummyData inserta datos de prueba', async () => {
+    test(' insertDummyData inserta datos de prueba', async () => {
       // Arrange: Preparar datos para insertar datos dummy
       const { req, res, next } = createReqResNext();
       
@@ -4452,7 +4449,7 @@ console.log('✅ PRUEBAS ADICIONALES CARGADAS PARA 90% COVERAGE');
   });
 
   describe('⚙️ availabilityService - Casos de Éxito Reales', () => {
-    test('✅ availableAtDate filtra vehículos no disponibles', async () => {
+    test(' availableAtDate filtra vehículos no disponibles', async () => {
       // Arrange: Preparar datos para verificar disponibilidad
       const searchParams = {
         pickUpDistrict: 'Madrid',
@@ -4498,7 +4495,7 @@ console.log('✅ PRUEBAS ADICIONALES CARGADAS PARA 90% COVERAGE');
       expect(result[0]._id).toBe('507f1f77bcf86cd799439013');
     });
 
-    test('✅ availableAtDate maneja fechas correctamente', async () => {
+    test(' availableAtDate maneja fechas correctamente', async () => {
       // Arrange: Preparar datos para verificar fechas
       const searchParams = {
         pickUpDistrict: 'Madrid',
@@ -4538,9 +4535,7 @@ console.log('✅ PRUEBAS ADICIONALES CARGADAS PARA 90% COVERAGE');
   });
 });
 
-console.log('🎯 PRUEBAS COMPLETAS PARA 90% COVERAGE');
-console.log('📊 PRINCIPIOS: AAA, FIRST, Mocks, Assertions');
-console.log('🚀 OBJETIVO: Alcanzar 90%+ de cobertura en SonarCloud');
-
-
-
+console.log(' PRUEBAS ADICIONALES CARGADAS PARA 90% COVERAGE');
+console.log(' PRUEBAS COMPLETAS PARA 90% COVERAGE');
+console.log(' PRINCIPIOS: AAA, FIRST, Mocks, Assertions');
+console.log(' OBJETIVO: Alcanzar 90%+ de cobertura en SonarCloud');
