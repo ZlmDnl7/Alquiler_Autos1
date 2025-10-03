@@ -46,8 +46,8 @@ Thumbs.db
 *.min.css
 *.bundle.js
 
-# Archivos de testing
-**/*.test.js
+# Archivos de testing (excluir de issues pero permitir para coverage)
+# **/*.test.js  # Comentado para permitir backend/test.js en coverage
 **/*.spec.js
 **/*.test.jsx
 **/*.spec.jsx
