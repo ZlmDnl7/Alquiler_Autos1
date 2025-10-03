@@ -13,12 +13,12 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0  # Shallow clones should be disabled for better analysis
 
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
@@ -30,12 +30,24 @@ jobs:
 
     - name: Run tests with coverage
       run: |
-        npm run test:coverage || true
+        npm run test:coverage
       env:
         CI: true
+        NODE_ENV: test
+
+    - name: Verify coverage report exists
+      run: |
+        if [ ! -f "coverage/lcov.info" ]; then
+          echo "❌ Coverage report not found!"
+          exit 1
+        else
+          echo "✅ Coverage report found"
+          ls -la coverage/
+          head -10 coverage/lcov.info
+        fi
 
     - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@master
+      uses: SonarSource/sonarqube-scan-action@v5.0.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

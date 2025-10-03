@@ -10,6 +10,14 @@ module.exports = {
         '!backend/test.js'
       ],
       coverageDirectory: 'coverage',
+      coverageThreshold: {
+        global: {
+          branches: 50,
+          functions: 60,
+          lines: 60,
+          statements: 60
+        }
+      },
       testEnvironment: 'node',
       transform: {},
       testEnvironmentOptions: {
@@ -18,6 +26,12 @@ module.exports = {
     }
   ],
   collectCoverage: true,
+  coverageReporters: ['lcov', 'text', 'html', 'json'],
   // Permitir que las suites fallen sin detener cobertura en CI
   passWithNoTests: true,
+  // Configuración para mejor cobertura
+  forceExit: true,
+  clearMocks: true,
+  resetMocks: true,
+  restoreMocks: true
 };
