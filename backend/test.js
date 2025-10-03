@@ -11,7 +11,9 @@ import { jest, describe, test, expect, beforeEach, beforeAll } from '@jest/globa
 import mongoose from 'mongoose';
 import bcryptjs from 'bcryptjs';
 // Mock jsonwebtoken a nivel global para facilitar spies en ESM
-jest.mock('jsonwebtoken', () => ({ __esModule: true, verify: jest.fn(), sign: jest.fn() }));
+const mockVerify = jest.fn();
+const mockSign = jest.fn();
+jest.mock('jsonwebtoken', () => ({ __esModule: true, verify: mockVerify, sign: mockSign }));
 import * as JsonWebToken from 'jsonwebtoken';
 
 // Mock de servicio de disponibilidad (antes de importar controladores)
@@ -302,7 +304,9 @@ describe('bookingController', () => {
   });
 
   test('getVehiclesWithoutBooking devuelve disponibles y continúa al siguiente middleware', async () => {
-    jest.spyOn(availabilityService, 'availableAtDate').mockResolvedValue([
+    // Mock availabilityService directamente
+    const availabilityService = await import('./services/checkAvailableVehicle.js');
+    availabilityService.availableAtDate.mockResolvedValue([
       { district: 'D', location: 'L', isDeleted: 'false', model: 'M' },
       { district: 'X', location: 'Y', isDeleted: 'false', model: 'N' },
     ]);
@@ -474,8 +478,8 @@ describe('utils multer dataUri', () => {
 describe('authController.refreshToken happy path', () => {
   test('genera nuevos tokens cuando refresh es válido', async () => {
     const { req, res, next } = createReqResNext({ headers: { authorization: 'Bearer oldRefresh,oldAccess' } });
-    JsonWebToken.verify.mockImplementation(() => ({ id: 'u1' }));
-    JsonWebToken.sign.mockReturnValue('newToken');
+    mockVerify.mockImplementation(() => ({ id: 'u1' }));
+    mockSign.mockReturnValue('newToken');
     jest.spyOn(User, 'findById').mockResolvedValue({ _id: 'u1', refreshToken: 'oldRefresh' });
     jest.spyOn(User, 'updateOne').mockResolvedValue({});
     await authController.refreshToken(req, res, next);
@@ -487,7 +491,7 @@ describe('authController.refreshToken happy path', () => {
 describe('verifyToken con access expirado y refresh válido', () => {
   test('usa refresh cuando access expira', async () => {
     // Simular verify del access lanza expirado y luego valida refresh
-    JsonWebToken.verify
+    mockVerify
       .mockImplementationOnce(() => { const err = new Error('expired'); err.name = 'TokenExpiredError'; throw err; })
       .mockImplementationOnce(() => ({ id: 'u1' }));
     jest.spyOn(User, 'findById').mockResolvedValue({ _id: 'u1', refreshToken: 'r' });
@@ -577,7 +581,7 @@ describe('authController.google', () => {
 // ================= verifyToken invalid =================
 describe('verifyToken token inválido', () => {
   test('devuelve 403 cuando signature inválida', async () => {
-    JsonWebToken.verify.mockImplementation(() => { throw new Error('bad'); });
+    mockVerify.mockImplementation(() => { throw new Error('bad'); });
     const { req, res, next } = createReqResNext({ headers: { authorization: 'Bearer ,bad' } });
     await verifyToken(req, res, next);
     expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 403 }));
@@ -587,7 +591,8 @@ describe('verifyToken token inválido', () => {
 // ================= userBookingController extras =================
 describe('userBookingController extras', () => {
   test('getVehiclesWithoutBooking responde 200 directo sin next cuando no hay siguiente middleware', async () => {
-    jest.spyOn(availabilityService, 'availableAtDate').mockResolvedValue([{ district: 'D', location: 'L', isDeleted: 'false', model: 'M' }]);
+    const availabilityService = await import('./services/checkAvailableVehicle.js');
+    availabilityService.availableAtDate.mockResolvedValue([{ district: 'D', location: 'L', isDeleted: 'false', model: 'M' }]);
     const { req, res, next } = createReqResNext({ body: { pickUpDistrict: 'D', pickUpLocation: 'L', pickupDate: 1, dropOffDate: 2, model: 'M' }, route: { stack: [1] } });
     await bookingController.getVehiclesWithoutBooking(req, res, next);
     expect(res.status).toHaveBeenCalledWith(200);
@@ -706,30 +711,30 @@ describe('authController signUp casos adicionales', () => {
 
   test('signUp falla si password es muy corto', async () => {
     jest.spyOn(User, 'findOne').mockResolvedValue(null);
-    const { req, res, next } = createReqResNext({ body: { name: 'Test', email: 'test@test.com', password: '123' } });
+    const { req, res, next } = createReqResNext({ body: { username: 'Test', email: 'test@test.com', password: '123' } });
     await authController.signUp(req, res, next);
     expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
   });
 
-  test('signUp falla si name está vacío', async () => {
+  test('signUp falla si username está vacío', async () => {
     jest.spyOn(User, 'findOne').mockResolvedValue(null);
-    const { req, res, next } = createReqResNext({ body: { name: '', email: 'test@test.com', password: '123456' } });
+    const { req, res, next } = createReqResNext({ body: { username: '', email: 'test@test.com', password: '123456' } });
     await authController.signUp(req, res, next);
     expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
   });
 
   test('signUp falla si email formato inválido', async () => {
     jest.spyOn(User, 'findOne').mockResolvedValue(null);
-    const { req, res, next } = createReqResNext({ body: { name: 'Test', email: 'invalid-email', password: '123456' } });
+    const { req, res, next } = createReqResNext({ body: { username: 'Test', email: 'invalid-email', password: '123456' } });
     await authController.signUp(req, res, next);
     expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
   });
 
   test('signUp éxito crea usuario con hash password', async () => {
     jest.spyOn(User, 'findOne').mockResolvedValue(null);
-    jest.spyOn(User, 'create').mockResolvedValue({ _id: '1', name: 'Test', email: 'test@test.com' });
+    jest.spyOn(User, 'create').mockResolvedValue({ _id: '1', username: 'Test', email: 'test@test.com' });
     jest.spyOn(bcryptjs, 'hash').mockResolvedValue('hashedPassword');
-    const { req, res, next } = createReqResNext({ body: { name: 'Test', email: 'test@test.com', password: '123456' } });
+    const { req, res, next } = createReqResNext({ body: { username: 'Test', email: 'test@test.com', password: '123456' } });
     await authController.signUp(req, res, next);
     expect(res.status).toHaveBeenCalledWith(201);
     expect(bcryptjs.hash).toHaveBeenCalledWith('123456', 10);
@@ -791,7 +796,7 @@ describe('authController google casos adicionales', () => {
   test('google éxito crea usuario nuevo', async () => {
     jest.spyOn(User, 'findOne').mockResolvedValue(null);
     jest.spyOn(User, 'create').mockResolvedValue({ _id: '1', email: 'test@test.com' });
-    const { req, res, next } = createReqResNext({ body: { email: 'test@test.com', name: 'Test' } });
+    const { req, res, next } = createReqResNext({ body: { email: 'test@test.com', username: 'Test' } });
     await authController.google(req, res, next);
     expect(res.status).toHaveBeenCalledWith(201);
   });
@@ -799,7 +804,7 @@ describe('authController google casos adicionales', () => {
   test('google éxito actualiza usuario existente', async () => {
     jest.spyOn(User, 'findOne').mockResolvedValue({ _id: '1', email: 'test@test.com' });
     jest.spyOn(User, 'updateOne').mockResolvedValue({});
-    const { req, res, next } = createReqResNext({ body: { email: 'test@test.com', name: 'Test' } });
+    const { req, res, next } = createReqResNext({ body: { email: 'test@test.com', username: 'Test' } });
     await authController.google(req, res, next);
     expect(res.status).toHaveBeenCalledWith(200);
   });
@@ -813,7 +818,7 @@ describe('authController refreshToken casos adicionales', () => {
   });
 
   test('refreshToken falla si usuario no existe', async () => {
-    JsonWebToken.verify.mockImplementation(() => ({ id: 'nonexistent' }));
+    mockVerify.mockImplementation(() => ({ id: 'nonexistent' }));
     jest.spyOn(User, 'findById').mockResolvedValue(null);
     const { req, res, next } = createReqResNext({ headers: { authorization: 'Bearer valid-token' } });
     await authController.refreshToken(req, res, next);
@@ -821,7 +826,7 @@ describe('authController refreshToken casos adicionales', () => {
   });
 
   test('refreshToken falla si refresh token no coincide', async () => {
-    JsonWebToken.verify.mockImplementation(() => ({ id: '1' }));
+    mockVerify.mockImplementation(() => ({ id: '1' }));
     jest.spyOn(User, 'findById').mockResolvedValue({ _id: '1', refreshToken: 'different-token' });
     const { req, res, next } = createReqResNext({ headers: { authorization: 'Bearer valid-token' } });
     await authController.refreshToken(req, res, next);
@@ -829,7 +834,7 @@ describe('authController refreshToken casos adicionales', () => {
   });
 
   test('refreshToken falla si token expirado', async () => {
-    JsonWebToken.verify.mockImplementation(() => { throw new Error('Token expired'); });
+    mockVerify.mockImplementation(() => { throw new Error('Token expired'); });
     const { req, res, next } = createReqResNext({ headers: { authorization: 'Bearer expired-token' } });
     await authController.refreshToken(req, res, next);
     expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 403 }));
@@ -861,10 +866,10 @@ describe('vendorController vendorSignup casos adicionales', () => {
     expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
   });
 
-  test('vendorSignup falla si name vacío', async () => {
+  test('vendorSignup falla si username vacío', async () => {
     const { vendorSignup } = await import('./controllers/vendorControllers/vendorController.js');
     jest.spyOn(User, 'findOne').mockResolvedValue(null);
-    const { req, res, next } = createReqResNext({ body: { name: '', email: 'vendor@test.com', password: '123456' } });
+    const { req, res, next } = createReqResNext({ body: { username: '', email: 'vendor@test.com', password: '123456' } });
     await vendorSignup(req, res, next);
     expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
   });
@@ -872,9 +877,9 @@ describe('vendorController vendorSignup casos adicionales', () => {
   test('vendorSignup éxito crea vendor', async () => {
     const { vendorSignup } = await import('./controllers/vendorControllers/vendorController.js');
     jest.spyOn(User, 'findOne').mockResolvedValue(null);
-    jest.spyOn(User, 'create').mockResolvedValue({ _id: '1', name: 'Vendor', email: 'vendor@test.com', isVendor: true });
+    jest.spyOn(User, 'create').mockResolvedValue({ _id: '1', username: 'Vendor', email: 'vendor@test.com', isVendor: true });
     jest.spyOn(bcryptjs, 'hash').mockResolvedValue('hashedPassword');
-    const { req, res, next } = createReqResNext({ body: { name: 'Vendor', email: 'vendor@test.com', password: '123456' } });
+    const { req, res, next } = createReqResNext({ body: { username: 'Vendor', email: 'vendor@test.com', password: '123456' } });
     await vendorSignup(req, res, next);
     expect(res.status).toHaveBeenCalledWith(201);
     expect(bcryptjs.hash).toHaveBeenCalledWith('123456', 10);
@@ -957,7 +962,7 @@ describe('vendorController vendorGoogle casos adicionales', () => {
     const { vendorGoogle } = await import('./controllers/vendorControllers/vendorController.js');
     jest.spyOn(User, 'findOne').mockResolvedValue(null);
     jest.spyOn(User, 'create').mockResolvedValue({ _id: '1', email: 'vendor@test.com', isVendor: true });
-    const { req, res, next } = createReqResNext({ body: { email: 'vendor@test.com', name: 'Vendor' } });
+    const { req, res, next } = createReqResNext({ body: { email: 'vendor@test.com', username: 'Vendor' } });
     await vendorGoogle(req, res, next);
     expect(res.status).toHaveBeenCalledWith(201);
   });
@@ -966,7 +971,7 @@ describe('vendorController vendorGoogle casos adicionales', () => {
     const { vendorGoogle } = await import('./controllers/vendorControllers/vendorController.js');
     jest.spyOn(User, 'findOne').mockResolvedValue({ _id: '1', email: 'vendor@test.com', isVendor: true });
     jest.spyOn(User, 'updateOne').mockResolvedValue({});
-    const { req, res, next } = createReqResNext({ body: { email: 'vendor@test.com', name: 'Vendor' } });
+    const { req, res, next } = createReqResNext({ body: { email: 'vendor@test.com', username: 'Vendor' } });
     await vendorGoogle(req, res, next);
     expect(res.status).toHaveBeenCalledWith(200);
   });
