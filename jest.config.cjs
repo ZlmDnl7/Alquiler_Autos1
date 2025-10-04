@@ -7,7 +7,8 @@ module.exports = {
         'backend/**/*.js',
         '!backend/node_modules/**',
         '!backend/coverage/**',
-        '!backend/test.js'
+        '!backend/test.js',
+        '!backend/test_backup.js'
       ],
       coverageDirectory: 'coverage',
       coverageThreshold: {
