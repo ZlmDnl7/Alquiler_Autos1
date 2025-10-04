@@ -11,6 +11,7 @@ env:
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   SONAR_ORGANIZATION: zlmdnl7
   SONAR_PROJECT_KEY: ZlmDnl7_Alquiler_Autos1
+  SONAR_HOST_URL: https://sonarcloud.io
 
 jobs:
   test-and-sonar:
