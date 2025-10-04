@@ -17,12 +17,7 @@ module.exports = {
     '!backend/server.js',
     '!backend/**/*.test.js',
     '!backend/**/*.spec.js',
-    '!backend/jest.config.js',
-    '!backend/controllers/**',
-    '!backend/models/**',
-    '!backend/routes/**',
-    '!backend/services/**',
-    '!backend/utils/**'
+    '!backend/jest.config.js'
   ],
   
   // Directorio de cobertura
@@ -38,13 +33,13 @@ module.exports = {
     'cobertura'    // Formato alternativo
   ],
   
-  // Umbrales de cobertura progresivos (se aumentarán conforme agreguemos tests)
+  // Umbrales de cobertura - Empezar con valores bajos pero realistas
   coverageThreshold: {
     global: {
-      branches: 0,     // Empezamos con 0, aumentaremos gradualmente
-      functions: 0,    // Empezamos con 0, aumentaremos gradualmente
-      lines: 0,        // Empezamos con 0, aumentaremos gradualmente
-      statements: 0    // Empezamos con 0, aumentaremos gradualmente
+      branches: 10,     // 10% de ramas cubiertas
+      functions: 15,    // 15% de funciones cubiertas
+      lines: 20,        // 20% de líneas cubiertas
+      statements: 20    // 20% de statements cubiertos
     }
   },
   
