@@ -15,20 +15,10 @@
 import { jest, describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 
 // ============================================================================
-// MANEJO GLOBAL DE ERRORES - Evitar UnhandledPromiseRejection
+// CONFIGURACIÓN DE TESTS
 // ============================================================================
 
-// Capturar promesas no manejadas
-process.on('unhandledRejection', (reason, promise) => {
-  // En tests, simplemente ignorar para evitar que falle el pipeline
-  // No hacer throw ni console.log para evitar interferir con Jest
-});
-
-// Capturar excepciones no manejadas
-process.on('uncaughtException', (error) => {
-  // En tests, simplemente ignorar para evitar que falle el pipeline
-  // No hacer throw ni console.log para evitar interferir con Jest
-});
+// La configuración de manejo de errores se maneja en jest.setup.js
 
 // ============================================================================
 // MOCKS GLOBALES - Sin base de datos
@@ -242,6 +232,14 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
 
   afterAll(async () => {
     // Limpiar cualquier promesa pendiente para evitar UnhandledPromiseRejection
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Forzar limpieza de timers y promesas pendientes
+    if (global.gc) {
+      global.gc();
+    }
+    
+    // Esperar un poco más para asegurar que todas las promesas se resuelvan
     await new Promise(resolve => setTimeout(resolve, 100));
   });
 

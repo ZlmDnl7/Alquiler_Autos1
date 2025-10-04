@@ -65,7 +65,11 @@ module.exports = {
   testTimeout: 30000,
   
   // Configuración de setup y teardown
-  setupFilesAfterEnv: [],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  
+  // Configuración para manejar promesas no manejadas
+  detectOpenHandles: false,
+  detectLeaks: false,
   
   // Configuración de verbose para mejor debugging
   verbose: true,
