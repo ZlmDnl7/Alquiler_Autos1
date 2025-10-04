@@ -998,9 +998,12 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
       const daysToInvalidFuture = Math.ceil((invalidFutureDate - today) / (1000 * 60 * 60 * 24));
       const daysToInvalidPast = Math.ceil((invalidPastDate - today) / (1000 * 60 * 60 * 24));
 
+      // Verificar que las fechas están en el rango válido
       expect(daysToValidDate >= minAdvanceDays && daysToValidDate <= maxAdvanceDays).toBe(true);
       expect(daysToInvalidFuture >= minAdvanceDays && daysToInvalidFuture <= maxAdvanceDays).toBe(false);
-      expect(daysToInvalidPast >= minAdvanceDays && daysToInvalidPast <= maxAdvanceDays).toBe(false);
+      
+      // Para fechas pasadas, el resultado debe ser negativo, lo cual es inválido
+      expect(daysToInvalidPast < minAdvanceDays).toBe(true);
     });
   });
 });
