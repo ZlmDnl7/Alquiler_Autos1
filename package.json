@@ -11,10 +11,10 @@
     "test:coverage": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js -c jest.config.cjs --coverage --watchAll=false",
     "test:watch": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js -c jest.config.cjs --watch",
     "test:ci": "cross-env NODE_OPTIONS=--unhandled-rejections=warn node --experimental-vm-modules ./node_modules/jest/bin/jest.js -c jest.config.cjs --coverage --watchAll=false --ci --passWithNoTests",
-    "sonar": "sonar-scanner -Dsonar.projectKey=ZlmDnl7_Alquiler_Autos1 -Dsonar.organization=zlmdnl7",
+    "sonar": "sonar-scanner -D\"sonar.projectKey=ZlmDnl7_Alquiler_Autos1\" -D\"sonar.organization=zlmdnl7\" -D\"sonar.host.url=https://sonarcloud.io\"",
     "sonar:backend": "cd backend && sonar-scanner",
     "sonar:frontend": "cd client && sonar-scanner",
-    "sonar:ci": "sonar-scanner -Dsonar.projectKey=ZlmDnl7_Alquiler_Autos1 -Dsonar.organization=zlmdnl7 -Dsonar.qualitygate.wait=true",
+    "sonar:ci": "sonar-scanner -D\"sonar.projectKey=ZlmDnl7_Alquiler_Autos1\" -D\"sonar.organization=zlmdnl7\" -D\"sonar.host.url=https://sonarcloud.io\" -D\"sonar.qualitygate.wait=true\"",
     "quality:check": "npm run test:ci && npm run sonar:ci",
     "ci:full": "npm ci && npm run test:ci && npm run sonar:ci"
   },
@@ -47,6 +47,7 @@
     "@testing-library/user-event": "^14.4.3",
     "cross-env": "^10.1.0",
     "jest": "^29.7.0",
+    "sonar-scanner": "^3.1.0",
     "supertest": "^6.3.3"
   }
 }

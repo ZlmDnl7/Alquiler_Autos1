@@ -46,7 +46,7 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       - name: Run SonarCloud Analysis
-        run: npm run sonar
+        run: npm run sonar:ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -56,9 +56,9 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const commentBody = `## ✅ CI/CD Pipeline Complete
+            const commentBody = `## CI/CD Pipeline Complete
             
-            **Tests:** ✅ PASSED
+            **Tests:**  PASSED
             **Coverage:** Generated successfully
             **SonarCloud:** Analysis completed
             
