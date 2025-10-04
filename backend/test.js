@@ -214,37 +214,37 @@ import Booking from './models/BookingModel.js';
 import MasterData from './models/masterDataModel.js';
 
 // Importar TODOS los controladores para aumentar coverage
-import adminController from './controllers/adminController.js';
-import authController from './controllers/authController.js';
+import * as adminController from './controllers/adminController.js';
+import * as authController from './controllers/authController.js';
 
 // Importar controladores de admin
-import adminDashboardController from './controllers/adminControllers/adminController.js';
-import adminBookingsController from './controllers/adminControllers/bookingsController.js';
-import adminDashboardController2 from './controllers/adminControllers/dashboardController.js';
-import masterCollectionController from './controllers/adminControllers/masterCollectionController.js';
-import vendorVehicleRequestsController from './controllers/adminControllers/vendorVehilceRequests.js';
+import * as adminDashboardController from './controllers/adminControllers/adminController.js';
+import * as adminBookingsController from './controllers/adminControllers/bookingsController.js';
+import * as adminDashboardController2 from './controllers/adminControllers/dashboardController.js';
+import * as masterCollectionController from './controllers/adminControllers/masterCollectionController.js';
+import * as vendorVehicleRequestsController from './controllers/adminControllers/vendorVehilceRequests.js';
 
 // Importar controladores de usuario
-import userAllVehiclesController from './controllers/userControllers/userAllVehiclesController.js';
-import userBookingController from './controllers/userControllers/userBookingController.js';
-import userController from './controllers/userControllers/userController.js';
-import userProfileController from './controllers/userControllers/userProfileController.js';
+import * as userAllVehiclesController from './controllers/userControllers/userAllVehiclesController.js';
+import * as userBookingController from './controllers/userControllers/userBookingController.js';
+import * as userController from './controllers/userControllers/userController.js';
+import * as userProfileController from './controllers/userControllers/userProfileController.js';
 
 // Importar controladores de vendor
-import vendorBookingsController from './controllers/vendorControllers/vendorBookingsController.js';
-import vendorController from './controllers/vendorControllers/vendorController.js';
-import vendorCrudController from './controllers/vendorControllers/vendorCrudController.js';
+import * as vendorBookingsController from './controllers/vendorControllers/vendorBookingsController.js';
+import * as vendorController from './controllers/vendorControllers/vendorController.js';
+import * as vendorCrudController from './controllers/vendorControllers/vendorCrudController.js';
 
 // Importar rutas
-import adminRoutes from './routes/adminRoute.js';
-import authRoutes from './routes/authRoute.js';
-import userRoutes from './routes/userRoute.js';
-import vendorRoutes from './routes/venderRoute.js';
+import * as adminRoutes from './routes/adminRoute.js';
+import * as authRoutes from './routes/authRoute.js';
+import * as userRoutes from './routes/userRoute.js';
+import * as vendorRoutes from './routes/venderRoute.js';
 
 // Importar utilidades adicionales
-import errorHandler from './utils/error.js';
-import multer from './utils/multer.js';
-import cloudinaryConfig from './utils/cloudinaryConfig.js';
+import * as errorHandler from './utils/error.js';
+import * as multer from './utils/multer.js';
+import * as cloudinaryConfig from './utils/cloudinaryConfig.js';
 
 // ============================================================================
 // TESTS PARA FUNCIONALIDADES PRINCIPALES
