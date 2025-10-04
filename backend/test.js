@@ -155,7 +155,7 @@ function createMockUser(overrides = {}) {
   return {
     _id: '507f1f77bcf86cd799439011',
     username: 'testuser',
-    email: 'test@example.com',
+          email: 'test@example.com',
     password: 'hashed_password_123',
     phoneNumber: '123456789',
     isUser: true,
@@ -825,8 +825,8 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
       reallyInvalidHeaders.forEach(header => {
         const isValid = header && header.startsWith('Bearer ') && header.length > 7;
         expect(isValid).toBe(false);
-      });
-    });
+  });
+});
 
     test('debería validar datos de entrada contra inyección', () => {
       // Arrange: Preparar datos seguros e inseguros
@@ -890,8 +890,8 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
       prices.forEach((price, index) => {
         const cents = Math.round(price * 100);
         expect(cents).toBe(expectedCents[index]);
-      });
-    });
+  });
+});
 
     test('debería validar IDs de pago', () => {
       // Arrange: Preparar IDs válidos e inválidos
