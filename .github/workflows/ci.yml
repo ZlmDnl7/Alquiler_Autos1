@@ -1,0 +1,74 @@
+name: CI/CD Pipeline - Tests, Coverage & SonarCloud
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  NODE_VERSION: '18.x'
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  SONAR_ORGANIZATION: zlmdnl7
+  SONAR_PROJECT_KEY: ZlmDnl7_Alquiler_Autos1
+
+jobs:
+  test-and-sonar:
+    name: Tests, Coverage & SonarCloud
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install --save-dev sonar-scanner
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Run SonarCloud Analysis
+        run: npm run sonar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const commentBody = `## ✅ CI/CD Pipeline Complete
+            
+            **Tests:** ✅ PASSED
+            **Coverage:** Generated successfully
+            **SonarCloud:** Analysis completed
+            
+            📊 [View SonarCloud report](https://sonarcloud.io/dashboard?id=${process.env.SONAR_PROJECT_KEY})
+            
+            ---
+            *Automated by CI/CD pipeline*`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: commentBody
+            });

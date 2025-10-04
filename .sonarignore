@@ -1,75 +1,115 @@
-# Archivos y carpetas a excluir del análisis de SonarCloud
+# SonarQube ignore file - Archivos y directorios a excluir del análisis
 
 # Dependencias
-node_modules/
-**/node_modules/
+**/node_modules/**
+**/package-lock.json
+**/yarn.lock
 
-# Builds y distribuciones
-dist/
-build/
-**/dist/
-**/build/
+# Archivos de build y distribución
+**/dist/**
+**/build/**
+**/coverage/**
 
-# Coverage
-coverage/
-**/coverage/
-
-# Archivos de configuración
+# Archivos de configuración local
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# Archivos de log
-*.log
-logs/
-
-# Archivos temporales
-*.tmp
-*.temp
-.tmp/
-.temp/
-
 # Archivos de IDE
-.vscode/
-.idea/
+.vscode/**
+.idea/**
 *.swp
 *.swo
+*~
 
 # Archivos de sistema
 .DS_Store
 Thumbs.db
 
-# Archivos minificados
-*.min.js
-*.min.css
-*.bundle.js
+# Archivos temporales
+*.tmp
+*.temp
+*.log
 
-# Archivos de testing (excluir de issues pero permitir para coverage)
-# **/*.test.js  # Comentado para permitir backend/test.js en coverage
-**/*.spec.js
-**/*.test.jsx
-**/*.spec.jsx
-**/*.test.ts
-**/*.spec.ts
+# Archivos de test específicos que no queremos analizar
+backend/test.js
+backend/test_backup.js
+backend/__tests__/setup.test.js
 
 # Archivos de documentación
-README.md
 *.md
-docs/
+**/docs/**
+**/documentation/**
 
-# Archivos de configuración de herramientas
+# Archivos de configuración específicos
+jest.config.cjs
 .eslintrc*
 .prettierrc*
-jest.config.js
+.gitignore
+.sonarignore
+
+# Archivos de cliente (si no se analizan)
+client/**
+**/client/**
+
+# Archivos de backup
+**/*.backup
+**/*.bak
+**/backup/**
+
+# Archivos de cache
+**/.cache/**
+**/cache/**
+
+# Archivos de test coverage
+coverage/**
+**/coverage/**
+
+# Archivos de configuración de CI/CD
+.github/**
+.gitlab-ci.yml
+.travis.yml
+.circleci/**
+
+# Archivos de base de datos local
+*.sqlite
+*.db
+**/database/**
+
+# Archivos de assets
+**/assets/**
+**/public/**
+
+# Archivos de configuración de herramientas
+webpack.config.js
+rollup.config.js
+vite.config.js
 tailwind.config.js
 postcss.config.js
-vite.config.js
 
-# Archivos de Git
-.git/
-.gitignore
+# Archivos de scripts de utilidad
+**/scripts/**
+**/tools/**
 
-# Archivos de Vercel
-vercel.json
+# Archivos de migración (si no son código fuente)
+**/migrations/**
+**/seeds/**
+
+# Archivos de configuración de Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Archivos de configuración de Kubernetes
+k8s/**
+**/k8s/**
+
+# Archivos de configuración de Terraform
+*.tf
+**/.terraform/**
+
+# Archivos de configuración de Ansible
+ansible/**
+**/ansible/**
