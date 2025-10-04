@@ -3147,7 +3147,7 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
       for (let i = 0; i < 50; i++) {
         ultraValidationCases.push({
           type: 'phone',
-          value: `123456789${i.toString().padStart(3, '0')}`,
+          value: `123456789${(i % 100).toString().padStart(2, '0')}`,
           expected: true
         });
       }
@@ -3378,7 +3378,7 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
             username: `testuser${i}`,
             email: `test${i}@example.com`,
             password: `password${i}${i % 100}`,
-            phoneNumber: `123456789${i.toString().padStart(3, '0')}`,
+            phoneNumber: `123456789${(i % 100).toString().padStart(2, '0')}`,
             firstName: `First${i}`,
             lastName: `Last${i}`,
             address: `${i} Main St`,
@@ -3397,7 +3397,7 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
         ultraModelCases.push({
           type: 'Vehicle',
           data: {
-            registeration_number: `ABC${i.toString().padStart(3, '0')}`,
+            registeration_number: `ABC${(i % 100).toString().padStart(2, '0')}`,
             name: `Vehicle${i}`,
             model: `Model${i % 20}`,
             year_made: 2020 + (i % 5),
@@ -3870,7 +3870,7 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
             username: `testuser${i}`,
             email: `test${i}@example.com`,
             password: `password${i}${i % 100}`,
-            phoneNumber: `123456789${i.toString().padStart(3, '0')}`,
+            phoneNumber: `123456789${(i % 100).toString().padStart(2, '0')}`,
             firstName: `First${i}`,
             lastName: `Last${i}`,
             address: `${i} Main St`,
@@ -3884,7 +3884,7 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
             dateOfBirth: new Date(`199${i % 10}-${(i % 12) + 1}-${(i % 28) + 1}`),
             emergencyContact: {
               name: `Emergency${i}`,
-              phone: `987654321${i.toString().padStart(3, '0')}`,
+              phone: `987654321${(i % 100).toString().padStart(2, '0')}`,
               relationship: 'family'
             }
           }
@@ -3902,7 +3902,7 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
         additionalModelCases.push({
           type: 'Vehicle',
           data: {
-            registeration_number: `ABC${i.toString().padStart(3, '0')}`,
+            registeration_number: `ABC${(i % 100).toString().padStart(2, '0')}`,
             name: `Vehicle${i}`,
             model: `Model${i % 50}`,
             year_made: 2020 + (i % 5),
@@ -4152,13 +4152,13 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
               username: `testuser${i}`, 
               email: `test${i}@example.com`, 
               password: `password${i}`,
-              phoneNumber: `123456789${i.toString().padStart(3, '0')}`,
+              phoneNumber: `123456789${(i % 100).toString().padStart(2, '0')}`,
               firstName: `First${i}`,
               lastName: `Last${i}`,
               address: `${i} Main St`,
               city: `City${i % 20}`,
               country: `Country${i % 10}`,
-              registeration_number: `ABC${i.toString().padStart(3, '0')}`,
+              registeration_number: `ABC${(i % 100).toString().padStart(2, '0')}`,
               name: `Vehicle${i}`,
               model: `Model${i % 20}`,
               year_made: 2020 + (i % 5),
@@ -4305,9 +4305,9 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
               totalPrice: Math.floor(Math.random() * 50000) + 1 // Precios extremos
             },
             params: { 
-              id: `507f1f77bcf86cd7994390${i.toString().padStart(3, '0')}`,
-              vehicleId: `507f1f77bcf86cd7994390${(i + 1).toString().padStart(3, '0')}`,
-              bookingId: `507f1f77bcf86cd7994390${(i + 2).toString().padStart(3, '0')}`
+              id: `507f1f77bcf86cd7994390${(i % 100).toString().padStart(2, '0')}`,
+              vehicleId: `507f1f77bcf86cd7994390${((i + 1) % 100).toString().padStart(2, '0')}`,
+              bookingId: `507f1f77bcf86cd7994390${((i + 2) % 100).toString().padStart(2, '0')}`
             },
             query: {
               page: Math.floor(Math.random() * 1000) + 1,
@@ -4326,7 +4326,7 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
               'user-agent': `Mozilla/5.0 Test ${i}`.repeat(5)
             },
             user: { 
-              id: `507f1f77bcf86cd7994390${i.toString().padStart(3, '0')}`, 
+              id: `507f1f77bcf86cd7994390${(i % 100).toString().padStart(2, '0')}`, 
               role: ['user', 'admin', 'vendor', 'superadmin'][i % 4],
               isAdmin: i % 10 === 0,
               isVendor: i % 5 === 0,
@@ -4418,7 +4418,7 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
         
         extremeValidationCases.push({
           type: 'objectId',
-          value: `507f1f77bcf86cd7994390${i.toString().padStart(3, '0')}`,
+          value: `507f1f77bcf86cd7994390${(i % 100).toString().padStart(2, '0')}`,
           expected: true
         });
       }
@@ -4715,7 +4715,7 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
             features: features.slice(0, Math.floor(Math.random() * features.length) + 1),
             isDeleted: i % 10 === 0,
             isAvailable: i % 3 !== 0,
-            vendorId: `507f1f77bcf86cd7994390${i.toString().padStart(3, '0')}`,
+            vendorId: `507f1f77bcf86cd7994390${(i % 100).toString().padStart(2, '0')}`,
             images: Array(10).fill().map((_, j) => `image${i}${j}.jpg`),
             mileage: Math.floor(Math.random() * 1000000),
             color: `Color${i % 1000}`,
