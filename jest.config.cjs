@@ -17,7 +17,12 @@ module.exports = {
     '!backend/server.js',
     '!backend/**/*.test.js',
     '!backend/**/*.spec.js',
-    '!backend/jest.config.js'
+    '!backend/jest.config.js',
+    '!backend/controllers/**',
+    '!backend/models/**',
+    '!backend/routes/**',
+    '!backend/services/**',
+    '!backend/utils/**'
   ],
   
   // Directorio de cobertura

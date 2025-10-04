@@ -239,7 +239,7 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
     test('debería validar contraseña con criterios mínimos', () => {
       // Arrange: Preparar contraseñas válidas e inválidas
       const validPasswords = ['password123', '123456', 'strongpass'];
-      const invalidPasswords = ['12345', '', null, undefined, 'abc'];
+      const invalidPasswords = ['12345', 'abc'];
 
       // Act & Assert: Validar cada contraseña
       validPasswords.forEach(password => {
@@ -248,6 +248,13 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
 
       invalidPasswords.forEach(password => {
         const isValid = password && password.length >= 6;
+        expect(isValid).toBe(false);
+      });
+
+      // Test para valores realmente inválidos
+      const reallyInvalidPasswords = ['', null, undefined];
+      reallyInvalidPasswords.forEach(password => {
+        const isValid = Boolean(password && password.length >= 6);
         expect(isValid).toBe(false);
       });
     });
@@ -823,9 +830,9 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
       // Test para headers realmente inválidos
       const reallyInvalidHeaders = ['', null, undefined];
       reallyInvalidHeaders.forEach(header => {
-        const isValid = header && header.startsWith('Bearer ') && header.length > 7;
+        const isValid = Boolean(header && header.startsWith('Bearer ') && header.length > 7);
         expect(isValid).toBe(false);
-  });
+      });
 });
 
     test('debería validar datos de entrada contra inyección', () => {
@@ -850,7 +857,13 @@ describe('Sistema de Alquiler de Autos - Tests Automatizados', () => {
       });
 
       unsafeData.forEach(data => {
-        const hasInjectionPatterns = /[<>'"&;${}]/.test(data);
+        // Verificar patrones de inyección más específicos
+        const hasScriptTag = /<script/i.test(data);
+        const hasSqlInjection = /drop\s+table/i.test(data);
+        const hasPathTraversal = /\.\.\//.test(data);
+        const hasJndiInjection = /\$\{jndi:/i.test(data);
+        
+        const hasInjectionPatterns = hasScriptTag || hasSqlInjection || hasPathTraversal || hasJndiInjection;
         expect(hasInjectionPatterns).toBe(true);
       });
     });
