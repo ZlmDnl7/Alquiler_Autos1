@@ -6,10 +6,14 @@ module.exports = {
     '**/backend/test.js'
   ],
   
-  // Configuración de cobertura optimizada
+  // Configuración de cobertura optimizada - Incluir TODOS los archivos
   collectCoverage: true,
   collectCoverageFrom: [
-    'backend/**/*.js',
+    'backend/controllers/**/*.js',
+    'backend/models/**/*.js',
+    'backend/routes/**/*.js',
+    'backend/services/**/*.js',
+    'backend/utils/**/*.js',
     '!backend/node_modules/**',
     '!backend/coverage/**',
     '!backend/test.js',
@@ -57,9 +61,9 @@ module.exports = {
   // Configuración para mejor rendimiento y cobertura
   passWithNoTests: true,
   forceExit: true,
-  clearMocks: true,
-  resetMocks: true,
-  restoreMocks: true,
+  clearMocks: false,
+  resetMocks: false,
+  restoreMocks: false,
   
   // Configuración de timeouts
   testTimeout: 30000,
